@@ -1,0 +1,4 @@
+*.npz
+__pycache__
+trained_model.pt
+training_curve.png
