@@ -1,7 +1,10 @@
 # local package
 -e .
 
-# external requirements
+# extra
+
+
+# cookiecutter external requirements
 click
 Sphinx
 coverage

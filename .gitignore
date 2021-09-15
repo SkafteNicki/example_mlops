@@ -1,4 +1,6 @@
 *.npz
+*.pt
 __pycache__
 trained_model.pt
 training_curve.png
+*.egg-info/
