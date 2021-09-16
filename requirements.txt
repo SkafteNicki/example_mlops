@@ -8,6 +8,7 @@ torch==1.9.0
 wget==3.2
 scikit_learn==0.24.2
 dvc
+dvc[gdrive]
 
 # cookiecutter external requirements
 click==8.0.1
