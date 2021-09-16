@@ -33,7 +33,7 @@ class CorruptMnist(Dataset):
 
         if self.train:
             content = []
-            for i in range(5):
+            for i in range(8):
                 content.append(np.load(f"{in_folder}/train_{i}.npz", allow_pickle=True))
             data = torch.tensor(np.concatenate([c["images"] for c in content])).reshape(
                 -1, 1, 28, 28
@@ -64,10 +64,15 @@ class CorruptMnist(Dataset):
     def download_data(self) -> None:
         files = os.listdir(self.in_folder)
         if self.train:
-            for file_idx in range(5):
-                if f"train_{file_idx}.npz" not in files:
+            for file_idx in range(8):
+                if file_idx < 5 and f"train_{file_idx}.npz" not in files:
                     wget.download(
                         f"https://raw.githubusercontent.com/SkafteNicki/dtu_mlops/main/data/corruptmnist/train_{file_idx}.npz"
+                    )
+                    shutil.move(f"train_{file_idx}.npz", f"{self.in_folder}/train_{file_idx}.npz")
+                if file_idx > 4 and f"train_{file_idx}.npz" not in files:
+                    wget.download(
+                        f"https://raw.githubusercontent.com/SkafteNicki/dtu_mlops/main/data/corruptmnist_v2/train_{file_idx}.npz"
                     )
                     shutil.move(f"train_{file_idx}.npz", f"{self.in_folder}/train_{file_idx}.npz")
         else:
