@@ -4,3 +4,4 @@
 __pycache__
 trained_model.pt
 *.egg-info/
+/data
