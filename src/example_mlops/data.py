@@ -20,11 +20,11 @@ def normalize_img(images: torch.Tensor) -> torch.Tensor:
 class MnistDataModule(LightningDataModule):
     """Data module for MNIST dataset."""
 
-    data_dir: str
-    val_split: float
-    batch_size: int
-    num_workers: int
-    pin_memory: bool
+    data_dir: str = "data/processed"
+    val_split: float = 0.1
+    batch_size: int = 32
+    num_workers: int = 0
+    pin_memory: bool = True
 
     def __post_init__(self):
         """Initialize data module."""
