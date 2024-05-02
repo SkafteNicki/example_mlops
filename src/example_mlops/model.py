@@ -9,7 +9,7 @@ from torchvision import models
 class MnistClassifier(LightningModule):
     """My awesome model."""
 
-    def __init__(self, backbone: str) -> None:
+    def __init__(self, backbone: str = "resnet18") -> None:
         """Initialize model and metrics."""
         super().__init__()
         self.save_hyperparameters(logger=False)
@@ -79,13 +79,3 @@ class MnistClassifier(LightningModule):
         optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.1)
         return [optimizer], [scheduler]
-
-
-if __name__ == "__main__":
-    model = MnistClassifier()
-    print(f"Model architecture: {model}")
-    print(f"Number of parameters: {sum(p.numel() for p in model.parameters())}")
-
-    dummy_input = torch.randn(1, 1, 28, 28)
-    output = model(dummy_input)
-    print(f"Output shape: {output.shape}")

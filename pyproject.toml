@@ -32,8 +32,12 @@ dev = {file = ['requirements_dev.txt']}
 
 [project.scripts]
 evaluate = "example_mlops.evaluate:evaluate_model"
+model_management = "example_mlops.model_management:cli"
 preprocess = "example_mlops.preprocess:preprocess_data"
 train = "example_mlops.train:train_model"
+[tool.coverage.run]
+source=["example_mlops"]
+
 [tool.ruff]
 line-length = 120
 target-version = "py311"

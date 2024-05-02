@@ -39,6 +39,10 @@ clean:
 # PROJECT RULES                                                                 #
 #################################################################################
 
+tests:
+	coverage run -m pytest tests/unittests
+	coverage report -m
+
 start_sweep:
 	wandb sweep --project "example_mlops_project" --entity "best_mlops_team" configs/sweep.yaml
 
