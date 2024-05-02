@@ -1,0 +1,14 @@
+program: train
+name: hyperparameter-sweep
+method: bayes
+metric:
+  goal: minimize
+  name: val_loss
+parameters:
+  model.backbone:
+    values: ["resnet18", "resnet34", "resnet50"]
+run_cap: 10
+
+command:
+  - ${program}
+  - ${args_no_hyphens}

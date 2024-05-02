@@ -1,0 +1,11 @@
+defaults:
+  - common
+
+model_checkpoint: ???  # Path to the model checkpoint
+
+datamodule:
+  data_dir: "data/processed"
+  val_split: 0.1
+  batch_size: 128
+  num_workers: 0
+  pin_memory: True
