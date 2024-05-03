@@ -23,11 +23,11 @@ create_environment:
 ## Install Python Dependencies
 requirements:
 	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
-	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
 	$(PYTHON_INTERPRETER) -m pip install -e .
 
 ## Install Developer Python Dependencies
 dev_requirements: requirements
+	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
 	$(PYTHON_INTERPRETER) -m pip install -e .["dev"]
 
 ## Delete all compiled Python files

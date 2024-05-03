@@ -25,6 +25,7 @@ class MnistDataModule(LightningDataModule):
     batch_size: int = 32
     num_workers: int = 0
     pin_memory: bool = True
+    drop_last: bool = False
 
     def __post_init__(self):
         """Initialize data module."""
@@ -66,6 +67,7 @@ class MnistDataModule(LightningDataModule):
             shuffle=True,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
+            drop_last=self.drop_last,
         )
 
     def val_dataloader(self) -> torch.utils.data.DataLoader:
@@ -76,6 +78,7 @@ class MnistDataModule(LightningDataModule):
             shuffle=False,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
+            drop_last=self.drop_last,
         )
 
     def test_dataloader(self) -> torch.utils.data.DataLoader:
@@ -86,6 +89,7 @@ class MnistDataModule(LightningDataModule):
             shuffle=False,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
+            drop_last=self.drop_last,
         )
 
 
