@@ -7,7 +7,19 @@ metric:
 parameters:
   model.backbone:
     values: ["resnet18", "resnet34", "resnet50"]
-run_cap: 10
+  model.optimizer:
+    values: ["adam", "sgd"]
+  model.learning_rate:
+    min: 0.0001
+    max: 0.1
+    distribution: log_uniform
+  datamodule.batch_size:
+    values: [16, 32, 64, 128, 256]
+  trainer.gradient_clip_val:
+    min: 0.0
+    max: 1.0
+    distribution: uniform
+run_cap: 50
 
 command:
   - ${program}

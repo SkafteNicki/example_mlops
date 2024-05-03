@@ -40,7 +40,7 @@ clean:
 #################################################################################
 
 tests:
-	coverage run -m pytest tests/unittests
+	coverage run -m pytest tests/unittests --disable-warnings
 	coverage report -m
 
 start_sweep:

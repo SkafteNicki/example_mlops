@@ -9,7 +9,12 @@ from torchvision import models
 class MnistClassifier(LightningModule):
     """My awesome model."""
 
-    def __init__(self, backbone: str = "resnet18") -> None:
+    def __init__(
+        self,
+        backbone: str = "resnet18",
+        learning_rate: float = 1e-3,
+        optimizer: str = "adam",
+    ) -> None:
         """Initialize model and metrics."""
         super().__init__()
         self.save_hyperparameters(logger=False)
@@ -19,6 +24,9 @@ class MnistClassifier(LightningModule):
         self.backbone = models.get_model(backbone, weights=None)
         self.fc = nn.Linear(1000, 10)
         self.loss_fn = nn.CrossEntropyLoss()
+
+        self.learning_rate = learning_rate
+        self.optimizer_class = torch.optim.Adam if optimizer == "adam" else torch.optim.SGD
 
         metrics = torchmetrics.MetricCollection(
             {
@@ -76,6 +84,6 @@ class MnistClassifier(LightningModule):
 
     def configure_optimizers(self):
         """Configure optimizer and scheduler."""
-        optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
+        optimizer = self.optimizer_class(self.parameters(), lr=self.learning_rate)
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.1)
         return [optimizer], [scheduler]

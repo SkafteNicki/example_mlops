@@ -4,6 +4,7 @@ import shutil
 import dotenv
 import hydra
 import pytorch_lightning as pl
+import torch
 import wandb
 from omegaconf import DictConfig, OmegaConf
 
@@ -27,6 +28,11 @@ def train_model(cfg: DictConfig) -> None:
     # Instantiate model and datamodule
     model = MnistClassifier(**cfg.model)
     datamodule = MnistDataModule(**cfg.datamodule)
+
+    # Compile model if needed
+    if cfg.compile:
+        logger.info("Compiling model")
+        model = torch.compile(model)
 
     # Instantiate logger and callbacks
     experiment_logger = hydra.utils.instantiate(cfg.experiment_logger, save_dir=logdir)

@@ -1,6 +1,8 @@
 defaults:
   - common
 
+compile: True
+
 model:
   backbone: "resnet18"
 
@@ -41,3 +43,4 @@ callbacks:
 trainer:
   accelerator: "auto"
   max_epochs: 20
+  gradient_clip_val: 0.0
