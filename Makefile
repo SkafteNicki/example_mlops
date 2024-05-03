@@ -28,7 +28,7 @@ requirements:
 
 ## Install Developer Python Dependencies
 dev_requirements: requirements
-	$(PYTHON_INTERPRETER) -m pip install .["dev"]
+	$(PYTHON_INTERPRETER) -m pip install -e .["dev"]
 
 ## Delete all compiled Python files
 clean:
