@@ -11,6 +11,10 @@
 PROJECT_NAME = example_mlops
 PYTHON_VERSION = 3.11
 PYTHON_INTERPRETER = python
+CURRENT_DIR = ${shell pwd}
+
+pwd:
+	@echo $(CURRENT_DIR)
 
 #################################################################################
 # COMMANDS                                                                      #
@@ -38,6 +42,24 @@ clean:
 #################################################################################
 # PROJECT RULES                                                                 #
 #################################################################################
+
+container_build:
+	docker build . -t base:latest -f dockerfiles/base.dockerfile
+
+container_run:  # run using "make container_run command=<your-command>"
+	docker run \
+		--entrypoint $(command) \
+		--env-file .env \
+		-v $(CURRENT_DIR)/configs:/app/configs/ \
+		-v $(CURRENT_DIR)/data:/app/data/ \
+		-v $(CURRENT_DIR)/outputs:/app/outputs/ \
+		--rm \
+		base:latest
+
+check_code:
+	ruff check . --fix --exit-zero
+	ruff format .
+	mypy src
 
 tests:
 	coverage run -m pytest tests/unittests --disable-warnings

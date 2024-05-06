@@ -1,8 +1,6 @@
 defaults:
   - common
 
-compile: True
-
 model:
   backbone: "resnet18"
 

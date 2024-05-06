@@ -1,6 +1,8 @@
 import logging
 import os
+import sys
 from datetime import datetime
+from pathlib import Path
 
 import hydra
 from rich.logging import RichHandler
@@ -26,16 +28,42 @@ class HydraRichLogger(object):
             job_name = "example_mlops"
             os.mkdir(hydra_path)
 
-        file_handler = logging.FileHandler(os.path.join(hydra_path, f"{job_name}.log"))
-        rich_handler = RichHandler()
-
-        log = logging.getLogger("example_mlops")
-        log.setLevel(self.level)
-        log.addHandler(rich_handler)
-        log.addHandler(file_handler)
-        log.propagate = False
-        log.debug("Successfully create rich logger")
-        return log
+        logging_config = {
+            "version": 1,
+            "disable_existing_loggers": False,
+            "formatters": {
+                "minimal": {"format": "%(message)s"},
+                "detailed": {
+                    "format": "%(levelname)s %(asctime)s [%(name)s:%(filename)s:%(funcName)s:%(lineno)d]\n%(message)s\n"
+                },
+            },
+            "handlers": {
+                "console": {
+                    "class": "logging.StreamHandler",
+                    "stream": sys.stdout,
+                    "formatter": "minimal",
+                    "level": logging.DEBUG,
+                },
+                "file": {
+                    "class": "logging.handlers.RotatingFileHandler",
+                    "filename": Path(hydra_path, f"{job_name}.log"),
+                    "maxBytes": 10485760,  # 1 MB
+                    "backupCount": 10,
+                    "formatter": "detailed",
+                    "level": logging.INFO,
+                },
+            },
+            "root": {
+                "handlers": ["console", "file"],
+                "level": logging.INFO,
+                "propagate": True,
+            },
+        }
+        logging.config.dictConfig(logging_config)
+        logger = logging.getLogger()
+        logger.handlers[0] = RichHandler(markup=True)  # set rich handler
+        logger.debug("Successfully create rich logger")
+        return logger
 
     def info(self, message: str) -> None:
         """Log an info message."""

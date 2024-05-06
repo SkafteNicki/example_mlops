@@ -12,4 +12,6 @@ COPY requirements.txt /app/requirements.txt
 COPY pyproject.toml /app/pyproject.toml
 COPY src/ /app/src
 
-RUN pip install . --no-cache-dir
+RUN --mount=type=cache,target=/root/.cache/pip pip install .
+
+# no entrypoint, define these at runtime
