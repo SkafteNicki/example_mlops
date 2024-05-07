@@ -1,0 +1,58 @@
+name: Quality check staged model
+
+on:
+  repository_dispatch:
+    types: OPTIMIZE_AND_CONVERT
+
+jobs:
+  optimize_model:
+    runs-on: ubuntu-latest
+
+    steps:
+      - env:
+          MODEL_NAME: ${{ github.event.client_payload.model_name }}
+        run: echo "Optimizing model $MODEL_NAME"
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+          cache: 'pip'
+          cache-dependency-path: setup.py
+
+      - name: Install dependencies
+        run: make dev_requirements
+
+  #     - name: Quantize model
+  #       run: model_manager quantize
+
+  #     - name: Convert to ONNX
+  #       run: model_manager convert_to_onnx
+
+
+  # performance_tests:
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - env:
+  #         MODEL_NAME: ${{ github.event.client_payload.model_name }}
+  #       run: echo "Running performance tests for model $MODEL_NAME"
+
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
+
+  #     - name: Set up Python
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: 3.11
+  #         cache: 'pip'
+  #         cache-dependency-path: setup.py
+
+  #     - name: Install dependencies
+  #       run: make dev_requirements
+
+  #     - name: Run performance tests
+  #       run: model_manager run_performance_tests

@@ -44,6 +44,13 @@ class MnistClassifier(LightningModule):
         x = nn.functional.leaky_relu(self.backbone(x))
         return self.fc(x)
 
+    @torch.inference_mode()
+    def inference(self, x: torch.Tensor) -> torch.Tensor:
+        """Perform inference."""
+        probs = nn.functional.softmax(self(x), dim=1)
+        preds = torch.argmax(probs, dim=1)
+        return probs, preds
+
     def _shared_step(self, batch):
         """Shared step for training, validation, and test steps."""
         x, y = batch
