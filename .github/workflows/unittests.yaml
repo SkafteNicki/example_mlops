@@ -36,7 +36,7 @@ jobs:
         uses: iterative/setup-dvc@v1
 
       - name: Pull data
-        run:
+        run: |
           pip install --upgrade certifi
           dvc pull
 

@@ -7,7 +7,7 @@ from example_mlops.data import MnistDataModule, MnistDataset
 from unittests import _PATH_DATA
 
 
-@pytest.mark.skipif(not os.listdir(_PATH_DATA), reason="data not available")
+@pytest.mark.skipif(not os.path.exists(_PATH_DATA) and not os.listdir(_PATH_DATA), reason="data not available")
 class TestDataset:
     """Test dataset."""
 
@@ -34,7 +34,7 @@ class TestDataset:
         assert y.dtype == torch.int64
 
 
-@pytest.mark.skipif(not os.listdir(_PATH_DATA), reason="data not available")
+@pytest.mark.skipif(not os.path.exists(_PATH_DATA) and not os.listdir(_PATH_DATA), reason="data not available")
 class TestDatamodule:
     """Test datamodule."""
 
