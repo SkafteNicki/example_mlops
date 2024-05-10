@@ -3,7 +3,6 @@
 ## See https://www.gnu.org/software/make/manual/html_node/Phony-Targets.html
 ## Remove this if you want to use this Makefile for real targets
 .PHONY: *
-include .env
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -13,6 +12,7 @@ PROJECT_NAME = example_mlops
 PYTHON_VERSION = 3.11
 PYTHON_INTERPRETER = python
 CURRENT_DIR = ${shell pwd}
+GCP_PROJECT_NAME = $(shell gcloud config get-value project)
 
 pwd:
 	@echo $(CURRENT_DIR)
