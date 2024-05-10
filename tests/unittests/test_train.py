@@ -25,10 +25,10 @@ class TestTraining:
             cfg = compose(
                 config_name="train",
                 overrides=[
+                    "trainer.accelerator='cpu'",
                     "+trainer.fast_dev_run=True",
                     "upload_model=False",
                     f"logdir={self.tempdir}",
-                    "trainer.accelerator='cpu'",
                 ],
             )
             train_model(cfg)
