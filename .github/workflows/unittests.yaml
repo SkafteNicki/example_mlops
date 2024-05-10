@@ -27,7 +27,7 @@ jobs:
           cache: 'pip'
           cache-dependency-path: setup.py
 
-      - id: Auth with GCP
+      - name: Auth with GCP
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
