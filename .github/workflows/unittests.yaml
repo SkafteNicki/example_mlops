@@ -41,4 +41,9 @@ jobs:
           python -c "from pathlib import Path; print([str(file) for file in Path('data').rglob('*') if file.is_file()])"
 
       - name: Run tests & coverage
+        if: matrix.operating-system == 'macos-latest'
+        run: PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.0 make tests
+
+      - name: Run tests & coverage
+        if: matrix.operating-system != 'macos-latest'
         run: make tests
