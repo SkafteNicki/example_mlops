@@ -1,11 +1,14 @@
 import pytest
+import torch
 from example_mlops.utils import HydraRichLogger, get_dtype_from_string
 
 
 @pytest.mark.parametrize("dtype", ["float32", "float64", "int32", "int64"])
 def test_get_dtype_from_string(dtype):
     """Test that the data type is correctly converted from a string."""
-    assert get_dtype_from_string(dtype) == eval(f"torch.{dtype}")
+    fetched_dtype = get_dtype_from_string(dtype)
+    assert fetched_dtype == getattr(torch, dtype)
+    assert isinstance(fetched_dtype, torch.dtype)
 
 
 def test_logger():
