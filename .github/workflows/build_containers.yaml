@@ -1,0 +1,36 @@
+name: Code formatting
+
+on:
+  workflow_run:
+    workflows: [Unit tests]
+    branches: [main]
+    types:
+      - completed
+
+jobs:
+  submit_build:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Auth with GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v2'
+        with:
+          version: '>= 363.0.0'
+
+      - name: 'Use gcloud CLI'
+        run: 'gcloud info'
+
+      - name: 'Submit build'
+        run: gcloud builds submit --config cloudbuild.yaml
+
+  no_submit:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    steps:
+      - name: Notify
+        run: echo "Unit tests failed, not submitting build"
