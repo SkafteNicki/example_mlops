@@ -27,6 +27,14 @@ jobs:
           cache: 'pip'
           cache-dependency-path: setup.py
 
+      - id: Auth with GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up DVC
+        uses: iterative/setup-dvc@v1
+
       - name: Install dependencies
         run: make dev_requirements
 

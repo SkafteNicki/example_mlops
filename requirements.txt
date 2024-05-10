@@ -8,4 +8,6 @@ python-dotenv>=1.0.1
 scikit-learn>=1.4.2
 matplotlib>=3.8.4
 fastapi>=0.111.0
+dvc>=3.50.1
+dvc-gs>=3.0.1
 neural-compressor>=2.5.1

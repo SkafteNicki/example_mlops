@@ -1,0 +1,6 @@
+[core]
+    autostage = true
+    remote = remote_storage
+['remote "remote_storage"']
+    url = gs://example_mlops_data/
+    version_aware = true

@@ -3,6 +3,7 @@
 ## See https://www.gnu.org/software/make/manual/html_node/Phony-Targets.html
 ## Remove this if you want to use this Makefile for real targets
 .PHONY: *
+include .env
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -73,6 +74,17 @@ start_agent:  # Start agent for the latest sweep
         print(wandb.Api().project('example_mlops_project', \
         entity='best_mlops_team').sweeps()[0].id)") && \
         wandb agent best_mlops_team/example_mlops_project/$$SWEEP_ID
+
+# run using "make -i data_service_account" to ignore if the service account already exists
+data_service_account:
+	gcloud iam service-accounts create bucket-service-account \
+		--description="Service account for data" --display-name="bucket-service-account"
+	gcloud projects add-iam-policy-binding $(GCP_PROJECT_NAME) \
+		--member="serviceAccount:bucket-service-account@$(GCP_PROJECT_NAME).iam.gserviceaccount.com" \
+		--role="roles/storage.objectUser"
+	gcloud iam service-accounts keys create gs_service_account_key.json \
+		--iam-account=bucket-service-account@$(GCP_PROJECT_NAME).iam.gserviceaccount.com
+	echo "service_account_key.json" >> .gitignore
 
 #################################################################################
 # Documentation RULES                                                           #
