@@ -36,7 +36,9 @@ jobs:
         uses: iterative/setup-dvc@v1
 
       - name: Pull data
-        run: dvc pull
+        run:
+          pip install --upgrade certifi
+          dvc pull
 
       - name: Install dependencies
         run: make dev_requirements
