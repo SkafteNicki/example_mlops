@@ -28,7 +28,7 @@ class TestTraining:
                     "trainer.accelerator='cpu'",
                     "+trainer.fast_dev_run=True",
                     "upload_model=False",
-                    f"logdir={self.tempdir}",
+                    f"logdir='{self.tempdir}'",
                 ],
             )
             train_model(cfg)
