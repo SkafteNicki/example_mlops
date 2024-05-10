@@ -32,16 +32,11 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Set up DVC
-        uses: iterative/setup-dvc@v1
-
-      - name: Pull data
-        run: |
-          pip install --upgrade certifi
-          dvc pull
-
       - name: Install dependencies
         run: make dev_requirements
+
+      - name: Pull data
+        run: dvc pull
 
       - name: Run tests & coverage
         run: make tests
