@@ -35,6 +35,9 @@ jobs:
       - name: Set up DVC
         uses: iterative/setup-dvc@v1
 
+      - name: Pull data
+        run: dvc pull
+
       - name: Install dependencies
         run: make dev_requirements
 
