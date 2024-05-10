@@ -36,7 +36,9 @@ jobs:
         run: make dev_requirements
 
       - name: Pull data
-        run: dvc pull
+        run: |
+          dvc pull
+          python -c "from pathlib import Path; print([str(file) for file in Path('data').rglob('*') if file.is_file()])"
 
       - name: Run tests & coverage
         run: make tests

@@ -32,7 +32,7 @@ def get_hydra_dir_and_job_name() -> tuple[str, str]:
         formatted_datetime = current_datetime.strftime("%Y-%m-%d_%H-%M-%S")
         hydra_path = f"{os.getcwd()}/outputs/other/{formatted_datetime}"
         job_name = "example_mlops"
-        os.mkdir(hydra_path)
+        os.makedirs(hydra_path, exist_ok=True)
     return hydra_path, job_name
 
 
