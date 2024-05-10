@@ -1,8 +1,0 @@
-defaults:
-  - common
-
-raw_dir: data/raw
-processed_dir: data/processed
-num_train_files: 5
-normalize: True
-convert_to_rgb: True

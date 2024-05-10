@@ -7,9 +7,7 @@ import pytorch_lightning as pl
 import wandb
 from omegaconf import DictConfig, OmegaConf
 
-from example_mlops.data import MnistDataModule
-from example_mlops.model import MnistClassifier
-from example_mlops.utils import HydraRichLogger
+from example_mlops.utils import HydraRichLogger, get_hydra_dir_and_job_name
 
 dotenv.load_dotenv()
 logger = HydraRichLogger()
@@ -20,13 +18,14 @@ def train_model(cfg: DictConfig) -> None:
     """Train and evaluate the model."""
     logger.info("Starting training script")
     wandb.login(key=os.getenv("WANDB_API_KEY"), relogin=True)
-    logdir = hydra.core.hydra_config.HydraConfig.get().runtime.output_dir
+    logdir = cfg.logdir or get_hydra_dir_and_job_name()[0]
+    logger.info(f"Logging to {logdir}")
     os.mkdir(f"{logdir}/checkpoints")
     os.mkdir(f"{logdir}/wandb")
 
     # Instantiate model and datamodule
-    model = MnistClassifier(**cfg.model)
-    datamodule = MnistDataModule(**cfg.datamodule)
+    model = hydra.utils.instantiate(cfg.model)
+    datamodule = hydra.utils.instantiate(cfg.datamodule)
 
     # Instantiate logger and callbacks
     experiment_logger = hydra.utils.instantiate(cfg.experiment_logger, save_dir=logdir)
@@ -39,28 +38,31 @@ def train_model(cfg: DictConfig) -> None:
 
     # Instantiate trainer
     trainer = pl.Trainer(
-        default_root_dir=hydra.core.hydra_config.HydraConfig.get().runtime.output_dir,
+        default_root_dir=logdir,
         logger=experiment_logger,
         callbacks=[checkpoint_callback, early_stopping_callback, learning_rate_callback, progress_bar_callback],
         **cfg.trainer,
     )
 
-    logger.info("Starting training")
-    trainer.fit(model, datamodule=datamodule)
+    if cfg.train:
+        logger.info("Starting training")
+        trainer.fit(model, datamodule=datamodule)
 
-    logger.info("Starting evaluation")
-    results = trainer.test(model, datamodule=datamodule)
+    if cfg.evaluate:
+        logger.info("Starting evaluation")
+        results = trainer.test(model, datamodule=datamodule)
 
-    logger.info("Saving model as artifact")
-    best_model = checkpoint_callback.best_model_path
-    shutil.copy(best_model, f"{logdir}/checkpoints/best.ckpt")
-    artifact = wandb.Artifact(
-        name="mnist_model",
-        type="model",
-        metadata={k.lstrip("test_"): round(v, 3) for k, v in results[0].items()},  # remove test_ prefix and round
-    )
-    artifact.add_file(f"{logdir}/checkpoints/best.ckpt")
-    wandb.run.log_artifact(artifact)
+    if cfg.upload_model:
+        logger.info("Saving model as artifact")
+        best_model = checkpoint_callback.best_model_path
+        shutil.copy(best_model, f"{logdir}/checkpoints/best.ckpt")
+        artifact = wandb.Artifact(
+            name="mnist_model",
+            type="model",
+            metadata={k.lstrip("test_"): round(v, 3) for k, v in results[0].items()},  # remove test_ prefix and round
+        )
+        artifact.add_file(f"{logdir}/checkpoints/best.ckpt")
+        wandb.run.log_artifact(artifact)
 
 
 if __name__ == "__main__":

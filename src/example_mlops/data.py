@@ -1,31 +1,101 @@
 import os
 from dataclasses import dataclass
 
-import hydra
 import torch
-from omegaconf import DictConfig
+import torchvision.transforms.v2 as transforms
 from pytorch_lightning import LightningDataModule
+from torch import Tensor
+from torch.utils.data import DataLoader, Dataset
 
 from example_mlops.utils import HydraRichLogger
 
 logger = HydraRichLogger()
 
+unsqueeze_transform = transforms.Lambda(lambda x: x.unsqueeze(0))
 
-def normalize_img(images: torch.Tensor) -> torch.Tensor:
-    """Normalize images."""
-    return (images - images.mean()) / images.std()
+default_img_transform = transforms.Compose(
+    [
+        unsqueeze_transform,
+        transforms.RGB(),
+        transforms.ToDtype(torch.float32),
+    ]
+)
+default_target_transform = transforms.ToDtype(torch.int64)
+train_img_transform = transforms.Compose(
+    [
+        unsqueeze_transform,
+        transforms.RGB(),
+        transforms.ToDtype(torch.float32),
+        transforms.RandomHorizontalFlip(),
+    ]
+)
+
+
+class MnistDataset(Dataset):
+    """MNIST dataset for PyTorch.
+
+    Args:
+        data_folder: Path to the data folder.
+        train: Whether to load training or test data.
+        img_transform: Image transformation to apply.
+        target_transform: Target transformation to apply.
+    """
+
+    def __init__(
+        self,
+        data_folder: str = "data",
+        train: bool = True,
+        img_transform: transforms.Transform | None = default_img_transform,
+        target_transform: transforms.Transform | None = default_target_transform,
+    ) -> None:
+        super().__init__()
+        self.data_folder = data_folder
+        self.train = train
+        self.img_transform = img_transform
+        self.target_transform = target_transform
+        self.load_data()
+
+    def load_data(self) -> None:
+        """Load images and targets from disk."""
+        images, target = [], []
+        if self.train:
+            nb_files = len([f for f in os.listdir(self.data_folder) if f.startswith("train_images")])
+            for i in range(nb_files):
+                images.append(torch.load(f"{self.data_folder}/train_images_{i}.pt"))
+                target.append(torch.load(f"{self.data_folder}/train_target_{i}.pt"))
+        else:
+            images.append(torch.load(f"{self.data_folder}/test_images.pt"))
+            target.append(torch.load(f"{self.data_folder}/test_target.pt"))
+        self.images = torch.cat(images, 0)
+        self.target = torch.cat(target, 0)
+
+    def __getitem__(self, idx: int) -> tuple[Tensor, Tensor]:
+        """Return image and target tensor."""
+        img, target = self.images[idx], self.target[idx]
+        if self.img_transform:
+            img = self.img_transform(img)
+        if self.target_transform:
+            target = self.target_transform(target)
+        return img, target
+
+    def __len__(self):
+        """Return the number of images in the dataset."""
+        return self.images.shape[0]
 
 
 @dataclass
 class MnistDataModule(LightningDataModule):
     """Data module for MNIST dataset."""
 
-    data_dir: str = "data/processed"
+    data_dir: str = "data"
     val_split: float = 0.1
     batch_size: int = 32
     num_workers: int = 0
     pin_memory: bool = True
-    drop_last: bool = False
+    train_img_transform: transforms.Transform | None = train_img_transform
+    train_target_transform: transforms.Transform | None = default_target_transform
+    test_img_transform: transforms.Transform | None = default_img_transform
+    test_target_transform: transforms.Transform | None = default_target_transform
 
     def __post_init__(self):
         """Initialize data module."""
@@ -35,15 +105,14 @@ class MnistDataModule(LightningDataModule):
         self.test_dataset = None
 
     def setup(self, stage: str) -> None:
-        """Download data."""
-        files = os.listdir(self.data_dir)
+        """Setup data structures."""
         if stage == "fit":
-            if "train_images.pt" not in files or "train_target.pt" not in files:
-                raise FileNotFoundError("Train data not found. Please download the data first.")
-
-            train_imgs = torch.load(f"{self.data_dir}/train_images.pt")
-            train_target = torch.load(f"{self.data_dir}/train_target.pt")
-            train_dataset = torch.utils.data.TensorDataset(train_imgs, train_target)
+            train_dataset = MnistDataset(
+                self.data_dir,
+                train=True,
+                img_transform=self.train_img_transform,
+                target_transform=self.train_target_transform,
+            )
             n_train = len(train_dataset)
             n_val = int(n_train * self.val_split)
             self.train_dataset, self.val_dataset = torch.utils.data.random_split(
@@ -51,88 +120,39 @@ class MnistDataModule(LightningDataModule):
             )
 
         if stage == "test":
-            if "test_images.pt" not in files or "test_target.pt" not in files:
-                raise FileNotFoundError("Test data not found. Please download the data first.")
+            self.test_dataset = MnistDataset(
+                self.data_dir,
+                train=False,
+                img_transform=self.test_img_transform,
+                target_transform=self.test_target_transform,
+            )
 
-            test_imgs = torch.load(f"{self.data_dir}/test_images.pt")
-            test_target = torch.load(f"{self.data_dir}/test_target.pt")
-
-            self.test_dataset = torch.utils.data.TensorDataset(test_imgs, test_target)
-
-    def train_dataloader(self) -> torch.utils.data.DataLoader:
+    def train_dataloader(self) -> DataLoader:
         """Return train dataloader."""
-        return torch.utils.data.DataLoader(
+        return DataLoader(
             self.train_dataset,
             batch_size=self.batch_size,
             shuffle=True,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
-            drop_last=self.drop_last,
         )
 
-    def val_dataloader(self) -> torch.utils.data.DataLoader:
+    def val_dataloader(self) -> DataLoader:
         """Return validation dataloader."""
-        return torch.utils.data.DataLoader(
+        return DataLoader(
             self.val_dataset,
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
-            drop_last=self.drop_last,
         )
 
-    def test_dataloader(self) -> torch.utils.data.DataLoader:
+    def test_dataloader(self) -> DataLoader:
         """Return test dataloader."""
-        return torch.utils.data.DataLoader(
+        return DataLoader(
             self.test_dataset,
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
-            drop_last=self.drop_last,
         )
-
-
-@hydra.main(version_base=None, config_path=f"{os.getcwd()}/configs", config_name="data")
-def preprocess_data(cfg: DictConfig) -> None:
-    """Process raw data and save it to processed directory."""
-    raw_dir = cfg.raw_dir
-    processed_dir = cfg.processed_dir
-    num_train_files = cfg.num_train_files
-    normalize = cfg.normalize
-    convert_to_rgb = cfg.convert_to_rgb
-
-    train_images, train_target = [], []
-    for i in range(num_train_files):
-        train_images.append(torch.load(f"{raw_dir}/train_images_{i}.pt"))
-        train_target.append(torch.load(f"{raw_dir}/train_target_{i}.pt"))
-    train_images = torch.cat(train_images)
-    train_target = torch.cat(train_target)
-
-    test_images: torch.Tensor = torch.load(f"{raw_dir}/test_images.pt")
-    test_target: torch.Tensor = torch.load(f"{raw_dir}/test_target.pt")
-
-    train_images = train_images.unsqueeze(1).float()
-    test_images = test_images.unsqueeze(1).float()
-    train_target = train_target.long()
-    test_target = test_target.long()
-
-    if normalize:
-        logger.info("Normalizing images.")
-        train_images = normalize_img(train_images)
-        test_images = normalize_img(test_images)
-
-    if convert_to_rgb:
-        logger.info("Converting images to RGB.")
-        train_images = train_images.repeat(1, 3, 1, 1)
-        test_images = test_images.repeat(1, 3, 1, 1)
-
-    torch.save(train_images, f"{processed_dir}/train_images.pt")
-    torch.save(train_target, f"{processed_dir}/train_target.pt")
-    torch.save(test_images, f"{processed_dir}/test_images.pt")
-    torch.save(test_target, f"{processed_dir}/test_target.pt")
-    logger.info("Data preprocessing completed.")
-
-
-if __name__ == "__main__":
-    preprocess_data()

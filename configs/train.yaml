@@ -1,11 +1,18 @@
 defaults:
   - common
 
+logdir: None
+train: True
+evaluate: True
+upload_model: True
+
 model:
+  _target_: "example_mlops.model.MnistClassifier"
   backbone: "resnet18"
 
 datamodule:
-  data_dir: "data/processed"
+  _target_: "example_mlops.data.MnistDataModule"
+  data_dir: "data"
   val_split: 0.1
   batch_size: 128
   num_workers: 0

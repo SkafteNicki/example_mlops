@@ -5,7 +5,35 @@ from datetime import datetime
 from pathlib import Path
 
 import hydra
+import torch
 from rich.logging import RichHandler
+
+
+def get_dtype_from_string(dtype: str) -> torch.dtype:
+    """Get the data type from a string."""
+    dtypes_conversion = {
+        "float32": torch.float32,
+        "float64": torch.float64,
+        "int32": torch.int32,
+        "int64": torch.int64,
+    }
+    if dtype in dtypes_conversion:
+        return dtypes_conversion[dtype]
+    raise ValueError(f"Data type {dtype} not supported.")
+
+
+def get_hydra_dir_and_job_name() -> tuple[str, str]:
+    """Get the hydra output directory and job name."""
+    try:
+        hydra_path = hydra.core.hydra_config.HydraConfig.get().runtime.output_dir
+        job_name = hydra.core.hydra_config.HydraConfig.get().job.name
+    except ValueError:
+        current_datetime = datetime.now()
+        formatted_datetime = current_datetime.strftime("%Y-%m-%d_%H-%M-%S")
+        hydra_path = f"{os.getcwd()}/outputs/other/{formatted_datetime}"
+        job_name = "example_mlops"
+        os.mkdir(hydra_path)
+    return hydra_path, job_name
 
 
 class HydraRichLogger(object):
@@ -18,16 +46,7 @@ class HydraRichLogger(object):
 
     def get_logger(self) -> logging.Logger:
         """Create a rich logger that logs to a file and the console."""
-        try:
-            hydra_path = hydra.core.hydra_config.HydraConfig.get().runtime.output_dir
-            job_name = hydra.core.hydra_config.HydraConfig.get().job.name
-        except ValueError:
-            current_datetime = datetime.now()
-            formatted_datetime = current_datetime.strftime("%Y-%m-%d_%H-%M-%S")
-            hydra_path = f"{os.getcwd()}/outputs/other/{formatted_datetime}"
-            job_name = "example_mlops"
-            os.mkdir(hydra_path)
-
+        hydra_path, job_name = get_hydra_dir_and_job_name()
         logging_config = {
             "version": 1,
             "disable_existing_loggers": False,
