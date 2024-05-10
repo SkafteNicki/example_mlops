@@ -1,6 +1,5 @@
 # project specifics
 docs/site/
-data/
 models/
 outputs/
 wandb/
@@ -173,3 +172,4 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+/data
