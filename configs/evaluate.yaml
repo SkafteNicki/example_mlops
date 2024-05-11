@@ -4,8 +4,21 @@ defaults:
 model_checkpoint: ???  # Path to the model checkpoint
 
 datamodule:
-  data_dir: "data/processed"
-  val_split: 0.1
+  _target_: "example_mlops.data.MnistDataModule"
+  data_dir: "data"
   batch_size: 128
-  num_workers: 0
-  pin_memory: True
+
+external_data:
+  name: "EMNIST"
+  batch_size: 128
+  config:
+    _target_: "torchvision.datasets.EMNIST"
+    root: "data/external"
+    split: "digits"
+    train: False
+    download: True
+    transform:
+      _target_: "torchvision.transforms.v2.Compose"
+      transforms:
+        - _target_: "torchvision.transforms.v2.ToTensor"
+        - _target_: "torchvision.transforms.v2.RGB"

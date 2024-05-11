@@ -1,7 +1,7 @@
 defaults:
   - common
 
-logdir: None
+logdir: null  # null correspond to default hydra config
 train: True
 evaluate: True
 upload_model: True

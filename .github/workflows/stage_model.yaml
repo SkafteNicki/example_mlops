@@ -3,18 +3,48 @@ name: Quality check staged model
 on:
   repository_dispatch:
     types: OPTIMIZE_AND_CONVERT
+  workflow_dispatch:
+    inputs:
+      model_name:
+        description: 'Model artifact to optimize and convert'
+        required: true
+        type: string
 
 jobs:
-  optimize_model:
+  identify_event:
     runs-on: ubuntu-latest
-
     steps:
-      - env:
-          MODEL_NAME: ${{ github.event.client_payload.model_name }}
-        run: echo "Optimizing model $MODEL_NAME"
+      - name: Check event type
+        run: |
+          if [ -n "${{ github.event.client_payload }}" ]; then
+            echo "Event type: repository_dispatch"
+            echo "Payload Data: ${{ toJson(github.event.client_payload) }}"
+          elif [ -n "${{ github.event.inputs }}" ]; then
+            echo "This is a workflow dispatch event"
+            # Access input parameters if needed
+            echo "Input Parameters: ${{ toJson(github.event.inputs) }}"
+          else
+            echo "Unknown event type"
+          fi
+      - name: Setting model environment variable
+        run: |
+          if [ -n "${{ github.event.client_payload }}" ]; then
+            echo "export MODEL_NAME=${{ github.event.client_payload.model_name }}" >> $GITHUB_ENV
+          elif [ -n "${{ github.event.inputs }}" ]; then
+            echo "export MODEL_NAME=${{ github.event.inputs.model_name }}" >> $GITHUB_ENV
+          else:
+            echo "Unknown event type"
+          fi
+      - name: Echo model name
+        run: |
+          echo "Model name: $MODEL_NAME"
 
+  evaluate_model:
+    runs-on: ubuntu-latest
+    needs: identify_event
+    steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -25,6 +55,15 @@ jobs:
 
       - name: Install dependencies
         run: make dev_requirements
+
+      - name: Login weights and biases
+        run: wandb login ${{ secrets.WANDB_API_KEY }}
+
+      - name: Evaluate model
+        run: evaluate model_checkpoint=$MODEL_NAME
+
+
+
 
   #     - name: Quantize model
   #       run: model_manager quantize

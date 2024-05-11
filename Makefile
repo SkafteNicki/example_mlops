@@ -76,7 +76,7 @@ start_agent:  # Start agent for the latest sweep
         wandb agent best_mlops_team/example_mlops_project/$$SWEEP_ID
 
 # run using "make -i data_service_account" to ignore if the service account already exists
-data_service_account:
+service_account:
 	gcloud iam service-accounts create bucket-service-account \
 		--description="Service account for data" --display-name="bucket-service-account"
 	gcloud projects add-iam-policy-binding $(GCP_PROJECT_NAME) \
@@ -84,8 +84,11 @@ data_service_account:
 		--role="roles/storage.objectUser"
 	gcloud projects add-iam-policy-binding $(GCP_PROJECT_NAME) \
 		--member="serviceAccount:bucket-service-account@$(GCP_PROJECT_NAME).iam.gserviceaccount.com" \
-		--roles="roles/cloudbuild.builds.builder"
-	gcloud iam service-accounts keys create gs_service_account_key.json \
+		--role="roles/serviceusage.serviceUsageConsumer"
+	gcloud projects add-iam-policy-binding $(GCP_PROJECT_NAME) \
+		--member="serviceAccount:bucket-service-account@$(GCP_PROJECT_NAME).iam.gserviceaccount.com" \
+		--role="roles/cloudbuild.builds.builder"
+	gcloud iam service-accounts keys create service_account_key.json \
 		--iam-account=bucket-service-account@$(GCP_PROJECT_NAME).iam.gserviceaccount.com
 	echo "service_account_key.json" >> .gitignore
 
