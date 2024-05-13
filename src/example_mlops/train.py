@@ -4,9 +4,9 @@ import shutil
 import dotenv
 import hydra
 import pytorch_lightning as pl
-import wandb
 from omegaconf import DictConfig, OmegaConf
 
+import wandb
 from example_mlops.utils import HydraRichLogger, get_hydra_dir_and_job_name
 
 dotenv.load_dotenv()

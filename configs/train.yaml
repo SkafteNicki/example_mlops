@@ -21,8 +21,9 @@ datamodule:
 experiment_logger:
   _target_: "pytorch_lightning.loggers.WandbLogger"
   project: "example_mlops_project"
-  save_dir: "logs"
   entity: "best_mlops_team"
+  job_type: "train"
+  save_code: True
 
 callbacks:
   early_stopping:

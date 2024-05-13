@@ -1,10 +1,10 @@
 import os
 
 import hydra
+import torch
 import torchmetrics
-import wandb
 from dotenv import load_dotenv
-from omegaconf import DictConfig
+from omegaconf import DictConfig, OmegaConf
 from tabulate import tabulate
 from torch.utils.data import DataLoader
 from torchmetrics.classification import (
@@ -18,6 +18,7 @@ from torchmetrics.classification import (
 )
 from tqdm.rich import tqdm
 
+import wandb
 from example_mlops.model import MnistClassifier
 from example_mlops.utils import HydraRichLogger, get_hydra_dir_and_job_name
 
@@ -29,7 +30,18 @@ logger = HydraRichLogger()
 def evaluate_model(cfg: DictConfig):
     """Evaluate model on test dataset."""
     logger.info("Evaluating model on test dataset.")
-    logdir, _ = get_hydra_dir_and_job_name()
+    logdir = cfg.logdir or get_hydra_dir_and_job_name()[0]
+    logger.info(f"Logging to {logdir}")
+    os.mkdir(f"{logdir}/wandb")
+
+    wandb.login(key=os.getenv("WANDB_API_KEY"), relogin=True)
+    run = wandb.init(
+        project=cfg.experiment_logger.project,
+        entity=cfg.experiment_logger.entity,
+        job_type=cfg.experiment_logger.job_type,
+        dir=logdir,
+        config=OmegaConf.to_container(cfg),
+    )
 
     logger.info("Loading data.")
     datamodule = hydra.utils.instantiate(cfg.datamodule)
@@ -92,6 +104,17 @@ def evaluate_model(cfg: DictConfig):
         values = [results[name][key].item() for name in data.keys()]
         table_data.append([key, *values])
 
+    # Log results to wandb, both as a table and as individual metrics
+    run.log({"results": wandb.Table(columns=["Metric", *data.keys()], data=table_data)})
+    run.log(
+        {
+            f"{key}_{name}": value
+            for name, result in results.items()
+            for key, value in result.items()
+            if (isinstance(value, torch.Tensor) and value.numel() == 1)
+        }
+    )
+
     table = tabulate(
         table_data,
         headers=["Metric", *data.keys()],
@@ -100,16 +123,14 @@ def evaluate_model(cfg: DictConfig):
         stralign="right",
         floatfmt=".4f",
     )
-
     print(table)
 
     for name, collection in collections.items():
         for key in ["confusion_matrix", "roc_auc"]:
-            import pdb
-
-            pdb.set_trace()
             fig, _ = collection[key].plot()
             fig.savefig(f"{logdir}/{name}_{key}.png")
+            wandb.log({f"{name}_{key}": wandb.Image(fig)})
+
     logger.info("Confusion matrix and ROC-AUC plots saved.")
 
 

@@ -1,7 +1,14 @@
 defaults:
   - common
 
-model_checkpoint: ???  # Path to the model checkpoint
+model_checkpoint: ???  # Path to the model checkpoint needs to be provided
+logdir: null  # null correspond to default hydra config
+
+experiment_logger:
+  project: "example_mlops_project"
+  entity: "best_mlops_team"
+  job_type: "evaluate"
+  save_code: True
 
 datamodule:
   _target_: "example_mlops.data.MnistDataModule"
