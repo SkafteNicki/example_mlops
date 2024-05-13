@@ -9,5 +9,17 @@ steps:
     'dockerfiles/base.dockerfile'
   ]
   env: 'DOCKER_BUILDKIT=1'
+- name: 'gcr.io/cloud-builders/docker'
+  args: [
+    'build',
+    '.',
+    '-t',
+    'europe-west1-docker.pkg.dev/$PROJECT_ID/example-mlops-containers/app',
+    '-f',
+    'dockerfiles/app.dockerfile'
+  ]
 images:
 - 'europe-west1-docker.pkg.dev/$PROJECT_ID/example-mlops-containers/base'
+- 'europe-west1-docker.pkg.dev/$PROJECT_ID/example-mlops-containers/app'
+options:
+  logging: CLOUD_LOGGING_ONLY

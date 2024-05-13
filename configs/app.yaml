@@ -1,0 +1,3 @@
+model:
+  checkpoint: models/best.ckpt
+  map_location: cpu

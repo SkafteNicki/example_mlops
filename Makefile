@@ -46,6 +46,7 @@ clean:
 
 container_build:
 	docker build . -t base:latest -f dockerfiles/base.dockerfile
+	docker build . -t app:latest -f dockerfiles/app.dockerfile
 
 container_run:  # run using "make container_run command=<your-command>"
 	docker run \
@@ -91,6 +92,18 @@ service_account:
 	gcloud iam service-accounts keys create service_account_key.json \
 		--iam-account=bucket-service-account@$(GCP_PROJECT_NAME).iam.gserviceaccount.com
 	echo "service_account_key.json" >> .gitignore
+
+serve_app:
+	uvicorn src.example_mlops.app:app --reload
+
+docker_serve_app:
+	docker run \
+		-p 8000:8000 \
+		-v $(CURRENT_DIR)/models:/app/models/ \
+		-e "MODEL_CHECKPOINT=models/best.ckpt" \
+		-e "PORT=8000" \
+		--rm \
+		app:latest
 
 #################################################################################
 # Documentation RULES                                                           #

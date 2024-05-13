@@ -2,10 +2,10 @@ import os
 import tempfile
 
 import pytest
-import wandb
 from example_mlops.train import train_model
 from hydra import compose, initialize
 
+import wandb
 from unittests import _PATH_DATA
 
 

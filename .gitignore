@@ -173,5 +173,5 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 /data
-gs_service_account_key.json
+service_account_key.json
 .dvc/cache
