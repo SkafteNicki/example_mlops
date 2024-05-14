@@ -38,6 +38,7 @@ class MnistClassifier(LightningModule):
         self.train_metrics = metrics.clone(prefix="train_")
         self.val_metrics = metrics.clone(prefix="val_")
         self.test_metrics = metrics.clone(prefix="test_")
+        self.input_sample = torch.randn(1, 3, 28, 28)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Forward pass."""

@@ -1,4 +1,5 @@
 import os
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from omegaconf import OmegaConf
@@ -13,22 +14,35 @@ from example_mlops.utils import HydraRichLogger
 
 logger = HydraRichLogger()
 
-cfg = OmegaConf.load("configs/app.yaml")
-logger.info(f"Config: {cfg}")
-if os.path.exists(cfg.model.checkpoint):
-    logger.info(f"Model checkpoint found at {cfg.model.checkpoint}")
-    model_checkpoint = cfg.model.checkpoint
-else:  # assume wandb artifact path
-    logger.info("Downloading model checkpoint from WandB.")
-    api = wandb.Api(api_key=os.getenv("WANDB_API"))
-    artifact = api.artifact(cfg.model.checkpoint)
-    path = artifact.download("models")
-    model_checkpoint = f"{path}/best.ckpt"
-model = MnistClassifier.load_from_checkpoint(cfg.model.checkpoint, map_location=cfg.model.map_location)
-model.eval()
-logger.info("Model loaded.")
+models = {}
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Load the model at startup and clean up at shutdown."""
+    cfg = OmegaConf.load("configs/app.yaml")
+    logger.info(f"Config: {cfg}")
+    if os.path.exists(cfg.model.checkpoint):
+        logger.info(f"Model checkpoint found at {cfg.model.checkpoint}")
+        model_checkpoint = cfg.model.checkpoint
+    else:  # assume wandb artifact path
+        logger.info("Downloading model checkpoint from WandB.")
+        api = wandb.Api(api_key=os.getenv("WANDB_API"))
+        artifact = api.artifact(cfg.model.checkpoint)
+        path = artifact.download("models")
+        model_checkpoint = f"{path}/best.ckpt"
+    model = MnistClassifier.load_from_checkpoint(model_checkpoint, map_location=cfg.model.map_location)
+    model.eval()
+    models["mnist"] = model
+    logger.info("Model loaded.")
+
+    yield  # Wait for the application to finish
+
+    logger.info("Cleaning up...")
+    del model
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 class ImageRequest(BaseModel):
@@ -56,7 +70,7 @@ def predict(image_request: ImageRequest):
     logger.info("Image loaded.")
 
     input_tensor = default_img_transform(image_data)
-    probs, preds = model.inference(input_tensor)
+    probs, preds = models["mnist"].inference(input_tensor)
 
     # Return the predicted label
     return {"prediction": int(preds[0]), "probabilities": probs[0].tolist()}
