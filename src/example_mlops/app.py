@@ -1,13 +1,13 @@
 import os
 from contextlib import asynccontextmanager
 
+import wandb
 from fastapi import FastAPI
 from omegaconf import OmegaConf
 from PIL import Image
 from pydantic import BaseModel
 from torchvision.transforms.v2.functional import pil_to_tensor
 
-import wandb
 from example_mlops.data import default_img_transform
 from example_mlops.model import MnistClassifier
 from example_mlops.utils import HydraRichLogger
@@ -68,7 +68,6 @@ def predict(image_request: ImageRequest):
     """Predict the label of a given image."""
     image_data = pil_to_tensor(Image.open(image_request.image))
     logger.info("Image loaded.")
-
     input_tensor = default_img_transform(image_data)
     probs, preds = models["mnist"].inference(input_tensor)
 

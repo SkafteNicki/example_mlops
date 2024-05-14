@@ -3,6 +3,7 @@ import os
 import hydra
 import torch
 import torchmetrics
+import wandb
 from dotenv import load_dotenv
 from omegaconf import DictConfig, OmegaConf
 from tabulate import tabulate
@@ -18,7 +19,6 @@ from torchmetrics.classification import (
 )
 from tqdm.rich import tqdm
 
-import wandb
 from example_mlops.model import MnistClassifier
 from example_mlops.utils import HydraRichLogger, get_hydra_dir_and_job_name
 
@@ -132,6 +132,12 @@ def evaluate_model(cfg: DictConfig):
             wandb.log({f"{name}_{key}": wandb.Image(fig)})
 
     logger.info("Confusion matrix and ROC-AUC plots saved.")
+
+    # Save the model artifact
+    if hasattr(cfg, "log_artifact"):
+        artifact = run.log_artifact(f"{logdir}/best.ckpt", type="model")
+        logger.info("Model artifact saved.")
+        run.link_artifact(f"{logdir}/best.ckpt", "latest-model")
 
 
 if __name__ == "__main__":

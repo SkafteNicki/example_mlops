@@ -12,3 +12,5 @@ dvc>=3.50.1
 dvc-gs>=3.0.1
 neural-compressor>=2.5.1
 tabulate>=0.9.0
+onnxruntime>=1.17.3
+onnx>=1.16.0

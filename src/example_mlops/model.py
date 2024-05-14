@@ -1,3 +1,4 @@
+import onnxruntime as ort
 import torch
 import torchmetrics
 import torchmetrics.classification
@@ -46,7 +47,7 @@ class MnistClassifier(LightningModule):
         return self.fc(x)
 
     @torch.inference_mode()
-    def inference(self, x: torch.Tensor) -> torch.Tensor:
+    def inference(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         """Perform inference."""
         probs = nn.functional.softmax(self(x), dim=1)
         preds = torch.argmax(probs, dim=1)
@@ -95,3 +96,24 @@ class MnistClassifier(LightningModule):
         optimizer = self.optimizer_class(self.parameters(), lr=self.learning_rate)
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.1)
         return [optimizer], [scheduler]
+
+
+class MnistClassifierONNX(object):
+    """Basic wrapper class for ONNX versions of the above model."""
+
+    ort_session = None
+
+    @classmethod
+    def load_from_checkpoint(cls, path: str) -> "MnistClassifierONNX":
+        """Load the ONNX model from a checkpoint."""
+        ort_session = ort.InferenceSession(path)
+        model_class = cls()
+        model_class.ort_session = ort_session
+        return model_class
+
+    def inference(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        """Perform inference."""
+        output = self.ort_session.run(None, {"image": x.numpy()})
+        probs = nn.functional.softmax(torch.tensor(output[0]), 1)
+        preds = torch.argmax(probs, dim=1)
+        return probs, preds
