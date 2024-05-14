@@ -175,3 +175,4 @@ cython_debug/
 /data
 service_account_key.json
 .dvc/cache
+nc_workspace/

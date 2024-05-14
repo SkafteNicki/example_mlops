@@ -1,3 +1,5 @@
+import os
+
 import onnxruntime as ort
 import torch
 import torchmetrics
@@ -5,6 +7,8 @@ import torchmetrics.classification
 from pytorch_lightning import LightningModule
 from torch import nn
 from torchvision import models
+
+import wandb
 
 
 class MnistClassifier(LightningModule):
@@ -111,9 +115,46 @@ class MnistClassifierONNX(object):
         model_class.ort_session = ort_session
         return model_class
 
+    def __call__(self, x: torch.Tensor) -> torch.Tensor:
+        """Forward pass."""
+        output = self.ort_session.run(None, {"image": x.numpy()})
+        return torch.tensor(output[0])
+
     def inference(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         """Perform inference."""
         output = self.ort_session.run(None, {"image": x.numpy()})
         probs = nn.functional.softmax(torch.tensor(output[0]), 1)
         preds = torch.argmax(probs, dim=1)
         return probs, preds
+
+
+def load_from_checkpoint(model_checkpoint: str, logdir: str = "models", return_path: bool = False):
+    """Load the model from a checkpoint.
+
+    Accounts for model path either being local or a wandb artifact path.
+    Also accounts if the model is ONNX or PyTorch.
+
+    Args:
+        model_checkpoint (str): Path to the model checkpoint.
+        logdir (str): Directory to save the model to.
+        return_path (bool): Whether to return the path of the model.
+    """
+    if os.path.exists(model_checkpoint):
+        if model_checkpoint.endswith(".onnx"):
+            model = MnistClassifierONNX.load_from_checkpoint(model_checkpoint)
+        else:
+            model = MnistClassifier.load_from_checkpoint(model_checkpoint, map_location="cpu").eval()
+        path = model_checkpoint
+    else:
+        api = wandb.Api(api_key=os.getenv("WANDB_API_KEY"))
+        artifact = api.artifact(model_checkpoint)
+        artifact.download(root=logdir)
+        file_name = artifact.files()[0].name
+        if file_name.endswith(".onnx"):
+            model = MnistClassifierONNX.load_from_checkpoint(f"{logdir}/{file_name}")
+        else:
+            model = MnistClassifier.load_from_checkpoint(f"{logdir}/{file_name}", map_location="cpu").eval()
+        path = f"{logdir}/{file_name}"
+    if return_path:
+        return model, path
+    return model

@@ -1,7 +1,5 @@
-import os
 from contextlib import asynccontextmanager
 
-import wandb
 from fastapi import FastAPI
 from omegaconf import OmegaConf
 from PIL import Image
@@ -9,7 +7,7 @@ from pydantic import BaseModel
 from torchvision.transforms.v2.functional import pil_to_tensor
 
 from example_mlops.data import default_img_transform
-from example_mlops.model import MnistClassifier
+from example_mlops.model import load_from_checkpoint
 from example_mlops.utils import HydraRichLogger
 
 logger = HydraRichLogger()
@@ -22,17 +20,7 @@ async def lifespan(app: FastAPI):
     """Load the model at startup and clean up at shutdown."""
     cfg = OmegaConf.load("configs/app.yaml")
     logger.info(f"Config: {cfg}")
-    if os.path.exists(cfg.model.checkpoint):
-        logger.info(f"Model checkpoint found at {cfg.model.checkpoint}")
-        model_checkpoint = cfg.model.checkpoint
-    else:  # assume wandb artifact path
-        logger.info("Downloading model checkpoint from WandB.")
-        api = wandb.Api(api_key=os.getenv("WANDB_API"))
-        artifact = api.artifact(cfg.model.checkpoint)
-        path = artifact.download("models")
-        model_checkpoint = f"{path}/best.ckpt"
-    model = MnistClassifier.load_from_checkpoint(model_checkpoint, map_location=cfg.model.map_location)
-    model.eval()
+    model = load_from_checkpoint(cfg.model_checkpoint, logdir="models")
     models["mnist"] = model
     logger.info("Model loaded.")
 

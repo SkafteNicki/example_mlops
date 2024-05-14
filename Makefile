@@ -100,7 +100,7 @@ docker_serve_app:
 	docker run \
 		-p 8000:8000 \
 		-v $(CURRENT_DIR)/models:/app/models/ \
-		-e "MODEL_CHECKPOINT=models/best.ckpt" \
+		-e "MODEL_CHECKPOINT=models/checkpoint.ckpt" \
 		-e "PORT=8000" \
 		--rm \
 		app:latest

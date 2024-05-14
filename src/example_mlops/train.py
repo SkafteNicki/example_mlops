@@ -4,9 +4,9 @@ import shutil
 import dotenv
 import hydra
 import pytorch_lightning as pl
-import wandb
 from omegaconf import DictConfig, OmegaConf
 
+import wandb
 from example_mlops.utils import HydraRichLogger, get_hydra_dir_and_job_name
 
 dotenv.load_dotenv()
@@ -54,13 +54,13 @@ def train_model(cfg: DictConfig) -> None:
     if cfg.upload_model:
         logger.info("Saving model as artifact")
         best_model = checkpoint_callback.best_model_path
-        shutil.copy(best_model, f"{logdir}/checkpoints/best.ckpt")
+        shutil.copy(best_model, f"{logdir}/checkpoints/checkpoint.ckpt")
         artifact = wandb.Artifact(
             name="mnist_model",
             type="model",
             metadata={k.lstrip("test_"): round(v, 3) for k, v in results[0].items()},  # remove test_ prefix and round
         )
-        artifact.add_file(f"{logdir}/checkpoints/best.ckpt")
+        artifact.add_file(f"{logdir}/checkpoints/checkpoint.ckpt")
         wandb.run.log_artifact(artifact)
 
 

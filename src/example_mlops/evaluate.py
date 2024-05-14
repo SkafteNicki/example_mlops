@@ -3,7 +3,6 @@ import os
 import hydra
 import torch
 import torchmetrics
-import wandb
 from dotenv import load_dotenv
 from omegaconf import DictConfig, OmegaConf
 from tabulate import tabulate
@@ -19,7 +18,8 @@ from torchmetrics.classification import (
 )
 from tqdm.rich import tqdm
 
-from example_mlops.model import MnistClassifier
+import wandb
+from example_mlops.model import load_from_checkpoint
 from example_mlops.utils import HydraRichLogger, get_hydra_dir_and_job_name
 
 load_dotenv()
@@ -54,13 +54,7 @@ def evaluate_model(cfg: DictConfig):
         data.update({cfg.external_data.name: DataLoader(external_dataset, batch_size=cfg.external_data.batch_size)})
 
     logger.info("Loading model.")
-    if os.path.exists(cfg.model_checkpoint):  # local path to model checkpoint
-        model = MnistClassifier.load_from_checkpoint(cfg.model_checkpoint, map_location="cpu")
-    else:  # assume it is a wandb artifact path
-        api = wandb.Api(api_key=os.getenv("WANDB_API_KEY"))
-        artifact = api.artifact(cfg.model_checkpoint)
-        artifact.download(root=logdir)
-        model = MnistClassifier.load_from_checkpoint(f"{logdir}/best.ckpt", map_location="cpu")
+    model, model_path = load_from_checkpoint(cfg.model_checkpoint, logdir=logdir, return_path=True)
 
     # Defining metrics
     base_classification_metrics = lambda average: torchmetrics.MetricCollection(
@@ -133,10 +127,21 @@ def evaluate_model(cfg: DictConfig):
     logger.info("Confusion matrix and ROC-AUC plots saved.")
 
     # Save the model artifact
-    if hasattr(cfg, "log_artifact"):
-        artifact = run.log_artifact(f"{logdir}/best.ckpt", type="model")
-        logger.info("Model artifact saved.")
-        run.link_artifact(f"{logdir}/best.ckpt", "latest-model")
+    if cfg.upload_model:
+        logger.info("Saving model as artifact.")
+        artifact = wandb.Artifact(
+            name="mnist_model",
+            type="model",
+            metadata={
+                "accuracy": results["test set"]["micro_accuracy"].item(),
+                "precision": results["test set"]["micro_precision"].item(),
+                "recall": results["test set"]["micro_recall"].item(),
+            },
+        )
+        artifact.add_file(model_path)
+        run.log_artifact(artifact)
+
+    run.finish()
 
 
 if __name__ == "__main__":
