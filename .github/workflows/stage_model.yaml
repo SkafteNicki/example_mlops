@@ -65,17 +65,17 @@ jobs:
           python -c "from pathlib import Path; print([str(file) for file in Path('data').rglob('*') if file.is_file()])"
 
       - name: Evaluate model
-        run: evaluate model_checkpoint=$MODEL_NAME
-        with:
+        env:
           WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
+        run: evaluate model_checkpoint=$MODEL_NAME
 
       - name: Convert to ONNX and quantize
         run: model_manager export-and-quantize $MODEL_NAME
 
       - name: Evaluate quantized model
-        run: evaluate model_checkpoint=models/best_quantized.onnx
-        with:
+        env:
           WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
+        run: evaluate model_checkpoint=models/best_quantized.onnx
 
   # run_performance_tests:
   #   runs-on: ubuntu-latest
