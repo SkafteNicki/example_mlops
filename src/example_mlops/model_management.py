@@ -39,7 +39,7 @@ def stage_best_model_to_registry(model_name, metric_name, higher_is_better):
         higher_is_better: Whether higher metric values are better.
 
     """
-    api = wandb.Api()
+    api = wandb.Api(api_key=os.getenv("WANDB_API_KEY"))
     artifact_collection = api.artifact_collection(type_name="model", name=model_name)
 
     best_metric = float("-inf") if higher_is_better else float("inf")
@@ -77,7 +77,7 @@ def stage_model(artifact_path: str) -> None:
         logger.error("Please provide artifact_path")
         return
 
-    api = wandb.Api()
+    api = wandb.Api(api_key=os.getenv("WANDB_API_KEY"))
     _, _, artifact_name_version = artifact_path.split("/")
     artifact_name, _ = artifact_name_version.split(":")
 
@@ -97,7 +97,7 @@ def export_and_quantize(artifact_path: str) -> None:
         logger.error("Please provide artifact_path")
         return
 
-    api = wandb.Api()
+    api = wandb.Api(api_key=os.getenv("WANDB_API_KEY"))
     _, _, artifact_name_version = artifact_path.split("/")
     artifact_name, _ = artifact_name_version.split(":")
     artifact = api.artifact(artifact_path)
