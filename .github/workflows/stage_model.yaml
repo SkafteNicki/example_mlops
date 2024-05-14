@@ -29,9 +29,9 @@ jobs:
       - name: Setting model environment variable
         run: |
           if [ -n "${{ github.event.client_payload }}" ]; then
-            echo "export MODEL_NAME=${{ github.event.client_payload.artifact_version_string }}" >> $GITHUB_ENV
+            echo "MODEL_NAME=${{ github.event.client_payload.artifact_version_string }}" >> $GITHUB_ENV
           elif [ -n "${{ github.event.inputs }}" ]; then
-            echo "export MODEL_NAME=${{ github.event.inputs.model_name }}" >> $GITHUB_ENV
+            echo "MODEL_NAME=${{ github.event.inputs.model_name }}" >> $GITHUB_ENV
           fi
       - name: Echo model name
         run: |

@@ -34,7 +34,6 @@ def evaluate_model(cfg: DictConfig):
     logger.info(f"Logging to {logdir}")
     os.mkdir(f"{logdir}/wandb")
 
-    wandb.login(key=os.getenv("WANDB_API_KEY"), relogin=True)
     run = wandb.init(
         project=cfg.experiment_logger.project,
         entity=cfg.experiment_logger.entity,
@@ -58,7 +57,7 @@ def evaluate_model(cfg: DictConfig):
     if os.path.exists(cfg.model_checkpoint):  # local path to model checkpoint
         model = MnistClassifier.load_from_checkpoint(cfg.model_checkpoint, map_location="cpu")
     else:  # assume it is a wandb artifact path
-        api = wandb.Api(api_key=os.getenv("WANDB_API_KEY"))
+        api = wandb.Api()
         artifact = api.artifact(cfg.model_checkpoint)
         artifact.download(root=logdir)
         model = MnistClassifier.load_from_checkpoint(f"{logdir}/best.ckpt", map_location="cpu")
