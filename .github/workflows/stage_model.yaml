@@ -57,14 +57,24 @@ jobs:
       - name: Login weights and biases
         run: wandb login ${{ secrets.WANDB_API_KEY }}
 
+      - name: Auth with GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Pull data
+        run: |
+          dvc pull
+          python -c "from pathlib import Path; print([str(file) for file in Path('data').rglob('*') if file.is_file()])"
+
       - name: Evaluate model
         run: evaluate model_checkpoint=$MODEL_NAME
 
-  #     - name: Convert to ONNX and quantize
-  #       run: model_manager quantize_and_export
+      - name: Convert to ONNX and quantize
+        run: model_manager export-and-quantize $MODEL_NAME
 
-  #     - name: Evaluate quantized model
-  #       run: evaluate model_checkpoint=$MODEL_NAME-quantized +log_artifact=True
+      - name: Evaluate quantized model
+        run: evaluate model_checkpoint=models/best_quantized.onnx
 
   # run_performance_tests:
   #   runs-on: ubuntu-latest
