@@ -31,6 +31,9 @@ jobs:
       - name: Verify changes
         run: cat configs/app.yaml
 
+      - name: Setup CML
+        uses: iterative/setup-cml@v1
+
       - name: Create CML PR
         env:
           REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
