@@ -15,11 +15,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install yq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+          sudo wget https://github.com/mikefarah/yq/releases/download/v4.16.1/yq_linux_amd64 -O /usr/bin/yq
+          sudo chmod +x /usr/bin/yq
+
       - name: Simulate changes to config file
         env:
           MODEL_NAME: ${{ github.event.inputs.model_name }}
         run:
-          sed -i "s|checkpoint:.*|checkpoint: ${MODEL_NAME}|g" configs/app.yaml
+          yq eval ".model.checkpoint = \"${MODEL_NAME}\"" -i configs/app.yaml
+
+      - name: Verify changes
+        run: cat configs/app.yaml
 
       - name: Create CML PR
         env:
