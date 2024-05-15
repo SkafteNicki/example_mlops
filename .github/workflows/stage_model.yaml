@@ -90,12 +90,26 @@ jobs:
       - name: Link quantized model to model registry
         run: model_manager link-latest-model mnist_model -a staging -a onnx -a quantized
 
+      - name: Upload artifacts for future jobs
+        uses: actions/upload-artifact@v2
+        with:
+          name: models
+          path: models
+
   performance_tests:
     runs-on: ubuntu-latest
     needs: evaluate_model
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: models
+
+      - name: List downloaded artifacts
+        run: ls -l models
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -107,8 +121,15 @@ jobs:
       - name: Install dependencies
         run: make dev_requirements
 
-      - name: Run tests & coverage
-        run: make tests
+      - name: Run performance check on model
+        env:
+          MODEL_TO_TEST: models/checkpoint.onnx
+        run: pytest tests/performance
+
+      - name: Run performance check on quantized model
+        env:
+          MODEL_TO_TEST: models/checkpoint_quantized.onnx
+        run: pytest tests/performance
 
   deploy_staged_model:
     runs-on: ubuntu-latest
