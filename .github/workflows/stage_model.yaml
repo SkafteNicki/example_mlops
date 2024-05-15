@@ -28,6 +28,7 @@ jobs:
           else
             echo "Unknown event type"
           fi
+
       - name: Setting model environment variable and output
         id: set_output
         run: |
@@ -35,6 +36,7 @@ jobs:
             echo "model_name=${{ github.event.client_payload.artifact_version_string }}" >> $GITHUB_OUTPUT
           elif [ -n "${{ github.event.inputs }}" ]; then
             echo "model_name=${{ github.event.inputs.model_name }}" >> $GITHUB_OUTPUT
+          fi
 
   evaluate_model:
     runs-on: ubuntu-latest
