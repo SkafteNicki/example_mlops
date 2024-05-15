@@ -29,9 +29,9 @@ jobs:
       - name: Setting model environment variable
         run: |
           if [ -n "${{ github.event.client_payload }}" ]; then
-            echo "MODEL_NAME=${{ github.event.client_payload.artifact_version_string }}" >> $GITHUB_ENV
+            echo "MODEL_NAME=${{ github.event.client_payload.artifact_version_string }}" >> $GITHUB_OUTPUT
           elif [ -n "${{ github.event.inputs }}" ]; then
-            echo "MODEL_NAME=${{ github.event.inputs.model_name }}" >> $GITHUB_ENV
+            echo "MODEL_NAME=${{ github.event.inputs.model_name }}" >> $GITHUB_OUTPUT
           fi
       - name: Echo model name
         run: |
@@ -42,6 +42,7 @@ jobs:
     needs: identify_event
     env:
       WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
+      MODEL_NAME: ${{ needs.identify_event.outputs.MODEL_NAME }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -79,7 +80,7 @@ jobs:
         run: model_manager link-latest-model mnist_model -a staging -a onnx
 
       - name: Evaluate quantized model
-        run: evaluate model_checkpoint=models/checkpoint.onnx
+        run: evaluate model_checkpoint=models/checkpoint_quantized.onnx
 
       - name: Link quantized model to model registry
         run: model_manager link-latest-model mnist_model -a staging -a onnx -a quantized
