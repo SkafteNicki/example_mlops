@@ -76,19 +76,19 @@ jobs:
         run: evaluate model_checkpoint=$MODEL_NAME
 
       - name: Convert to ONNX and quantize
-        run: model_manager export-and-quantize $MODEL_NAME
+        run: model_management export-and-quantize $MODEL_NAME
 
       - name: Evaluate ONNX model
         run: evaluate model_checkpoint=models/checkpoint.onnx upload_model=True
 
       - name: Link ONNX model to model registry
-        run: model_manager link-latest-model mnist_model -a staging -a onnx
+        run: model_management link-latest-model mnist_model -a staging -a onnx
 
       - name: Evaluate quantized model
         run: evaluate model_checkpoint=models/checkpoint_quantized.onnx
 
       - name: Link quantized model to model registry
-        run: model_manager link-latest-model mnist_model -a staging -a onnx -a quantized
+        run: model_management link-latest-model mnist_model -a staging -a onnx -a quantized
 
       - name: Upload artifacts for future jobs
         uses: actions/upload-artifact@v2

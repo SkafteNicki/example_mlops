@@ -1,0 +1,28 @@
+name: Quality check staged model
+
+on:
+  workflow_dispatch:
+    inputs:
+      model_name:
+        description: 'Model artifact to optimize and convert'
+        required: true
+        type: string
+
+jobs:
+  testcase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - make: Simulate changes to config file
+        env:
+          MODEL_NAME: ${{ github.event.inputs.model_name }}
+        run:
+          sed -i "s|checkpoint:.*|checkpoint: ${MODEL_NAME}|g" configs/app.yaml
+
+      - name: Create CML PR
+        env:
+          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run:
+          cml pr create configs/app.yaml --title "Model checkpoint updated" --body "Updated model checkpoint to ${MODEL_NAME}"
