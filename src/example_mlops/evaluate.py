@@ -133,9 +133,9 @@ def evaluate_model(cfg: DictConfig):
             name="mnist_model",
             type="model",
             metadata={
-                "accuracy": results["test set"]["micro_accuracy"].item(),
-                "precision": results["test set"]["micro_precision"].item(),
-                "recall": results["test set"]["micro_recall"].item(),
+                "accuracy": round(results["test set"]["micro_accuracy"].item(), 3),
+                "precision": round(results["test set"]["micro_precision"].item(), 3),
+                "recall": round(results["test set"]["micro_recall"].item(), 3),
             },
         )
         artifact.add_file(model_path)

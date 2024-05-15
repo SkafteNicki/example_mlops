@@ -87,7 +87,7 @@ jobs:
         run: model_management link-latest-model mnist_model -a staging -a onnx
 
       - name: Evaluate quantized model
-        run: evaluate model_checkpoint=models/checkpoint_quantized.onnx
+        run: evaluate model_checkpoint=models/checkpoint_quantized.onnx upload_model=True
 
       - name: Link quantized model to model registry
         run: model_management link-latest-model mnist_model -a staging -a onnx -a quantized
@@ -96,7 +96,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: models
-          path: models
+          path: models/
 
   performance_tests:
     runs-on: ubuntu-latest
@@ -109,6 +109,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: models
+          path: models/
 
       - name: List downloaded artifacts
         run: ls -l models
@@ -132,6 +133,9 @@ jobs:
         env:
           MODEL_TO_TEST: models/checkpoint_quantized.onnx
         run: pytest tests/performance
+
+      - name: Compare performance metrics
+        run: pytest-benchmark compare --sort name --group name
 
   deploy_staged_model:
     runs-on: ubuntu-latest
