@@ -13,6 +13,8 @@ on:
 jobs:
   identify_event:
     runs-on: ubuntu-latest
+    outputs:
+      model_name: ${{ steps.set_output.outputs.model_name }}
     steps:
       - name: Check event type
         run: |
@@ -26,24 +28,25 @@ jobs:
           else
             echo "Unknown event type"
           fi
-      - name: Setting model environment variable
+      - name: Setting model environment variable and output
+        id: set_output
         run: |
           if [ -n "${{ github.event.client_payload }}" ]; then
-            echo "MODEL_NAME=${{ github.event.client_payload.artifact_version_string }}" >> $GITHUB_OUTPUT
+            echo "model_name=${{ github.event.client_payload.artifact_version_string }}" >> $GITHUB_OUTPUT
           elif [ -n "${{ github.event.inputs }}" ]; then
-            echo "MODEL_NAME=${{ github.event.inputs.model_name }}" >> $GITHUB_OUTPUT
-          fi
-      - name: Echo model name
-        run: |
-          echo "Model name: $MODEL_NAME"
+            echo "model_name=${{ github.event.inputs.model_name }}" >> $GITHUB_OUTPUT
 
   evaluate_model:
     runs-on: ubuntu-latest
     needs: identify_event
     env:
       WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
-      MODEL_NAME: ${{ needs.identify_event.outputs.MODEL_NAME }}
+      MODEL_NAME: ${{ needs.identify_event.outputs.model_name }}
     steps:
+      - name: Echo model name
+        run: |
+          echo "Model name: $MODEL_NAME"
+
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -85,26 +88,47 @@ jobs:
       - name: Link quantized model to model registry
         run: model_manager link-latest-model mnist_model -a staging -a onnx -a quantized
 
-  # run_performance_tests:
-  #   runs-on: ubuntu-latest
-  #   needs: evaluate_model
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
+  performance_tests:
+    runs-on: ubuntu-latest
+    needs: evaluate_model
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-  #     - name: Set up Python
-  #       uses: actions/setup-python@v5
-  #       with:
-  #         python-version: ${{ matrix.python-version }}
-  #         cache: 'pip'
-  #         cache-dependency-path: setup.py
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: setup.py
 
-  #     - name: Install dependencies
-  #       run: make dev_requirements
+      - name: Install dependencies
+        run: make dev_requirements
 
-  #     - name: Run tests & coverage
-  #       run: make tests
+      - name: Run tests & coverage
+        run: make tests
 
-  # deploy_staged_model:
-  #   runs-on: ubuntu-latest
-  #   needs: evaluate_model
+  deploy_staged_model:
+    runs-on: ubuntu-latest
+    needs: performance_tests
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: setup.py
+
+      - name: Auth with GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Deploy model
+        run: gcloud builds submit --config cloudbuild_containers.yaml --substitutions=_MODEL_NAME=$MODEL_NAME
