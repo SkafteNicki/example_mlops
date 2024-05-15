@@ -1,4 +1,4 @@
-name: Quality check staged model
+name: Test workflow
 
 on:
   workflow_dispatch:
@@ -15,7 +15,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - make: Simulate changes to config file
+      - name: Simulate changes to config file
         env:
           MODEL_NAME: ${{ github.event.inputs.model_name }}
         run:
