@@ -39,7 +39,10 @@ def stage_best_model_to_registry(model_name, metric_name, higher_is_better):
         higher_is_better: Whether higher metric values are better.
 
     """
-    api = wandb.Api(api_key=os.getenv("WANDB_API_KEY"))
+    api = wandb.Api(
+        api_key=os.getenv("WANDB_API_KEY"),
+        overrides={"entity": os.getenv("WANDB_ENTITY"), "project": os.getenv("WANDB_PROJECT")},
+    )
     artifact_collection = api.artifact_collection(type_name="model", name=model_name)
 
     best_metric = float("-inf") if higher_is_better else float("inf")
@@ -67,7 +70,10 @@ def stage_best_model_to_registry(model_name, metric_name, higher_is_better):
 @click.option("--aliases", "-a", multiple=True, default=["staging"], help="List of aliases to link the artifact with.")
 def link_latest_model(model_name: str, aliases: list[str]):
     """Link the latest model to the model registry."""
-    api = wandb.Api(api_key=os.getenv("WANDB_API_KEY"))
+    api = wandb.Api(
+        api_key=os.getenv("WANDB_API_KEY"),
+        overrides={"entity": os.getenv("WANDB_ENTITY"), "project": os.getenv("WANDB_PROJECT")},
+    )
     artifact_collection = api.artifact_collection(type_name="model", name=model_name)
     for artifact in list(artifact_collection.artifacts()):
         if "latest" in artifact.aliases:
@@ -97,7 +103,10 @@ def link_model(artifact_path: str, aliases: list[str]) -> None:
         logger.error("Please provide artifact_path")
         return
 
-    api = wandb.Api(api_key=os.getenv("WANDB_API_KEY"))
+    api = wandb.Api(
+        api_key=os.getenv("WANDB_API_KEY"),
+        overrides={"entity": os.getenv("WANDB_ENTITY"), "project": os.getenv("WANDB_PROJECT")},
+    )
     _, _, artifact_name_version = artifact_path.split("/")
     artifact_name, _ = artifact_name_version.split(":")
 

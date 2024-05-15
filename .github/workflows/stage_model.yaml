@@ -43,6 +43,8 @@ jobs:
     needs: identify_event
     env:
       WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
+      WANDB_ENTITY: ${{ secrets.WANDB_ENTITY }}
+      WANDB_PROJECT: ${{ secrets.WANDB_PROJECT }}
       MODEL_NAME: ${{ needs.identify_event.outputs.model_name }}
     steps:
       - name: Echo model name
