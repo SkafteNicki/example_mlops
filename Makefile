@@ -89,6 +89,15 @@ service_account:
 	gcloud projects add-iam-policy-binding $(GCP_PROJECT_NAME) \
 		--member="serviceAccount:bucket-service-account@$(GCP_PROJECT_NAME).iam.gserviceaccount.com" \
 		--role="roles/cloudbuild.builds.builder"
+	gcloud projects add-iam-policy-binding $(GCP_PROJECT_NAME) \
+		--member="serviceAccount:bucket-service-account@$(GCP_PROJECT_NAME).iam.gserviceaccount.com" \
+		--role="roles/secretmanager.secretAccessor"
+	gcloud projects add-iam-policy-binding $(GCP_PROJECT_NAME) \
+		--member="serviceAccount:bucket-service-account@$(GCP_PROJECT_NAME).iam.gserviceaccount.com" \
+		--role="roles/run.developer"
+	gcloud projects add-iam-policy-binding $(GCP_PROJECT_NAME) \
+		--member="serviceAccount:bucket-service-account@$(GCP_PROJECT_NAME).iam.gserviceaccount.com" \
+		--role="roles/iam.serviceAccountUser"
 	gcloud iam service-accounts keys create service_account_key.json \
 		--iam-account=bucket-service-account@$(GCP_PROJECT_NAME).iam.gserviceaccount.com
 	echo "service_account_key.json" >> .gitignore

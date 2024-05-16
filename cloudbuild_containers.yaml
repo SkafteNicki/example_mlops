@@ -18,6 +18,7 @@ steps:
     '-f',
     'dockerfiles/app.dockerfile'
   ]
+  env: 'DOCKER_BUILDKIT=1'
 images:
 - 'europe-west1-docker.pkg.dev/$PROJECT_ID/example-mlops-containers/base'
 - 'europe-west1-docker.pkg.dev/$PROJECT_ID/example-mlops-containers/app'
