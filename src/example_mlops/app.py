@@ -1,7 +1,8 @@
+import os
 from contextlib import asynccontextmanager
 
+from dotenv import load_dotenv
 from fastapi import FastAPI
-from omegaconf import OmegaConf
 from PIL import Image
 from pydantic import BaseModel
 from torchvision.transforms.v2.functional import pil_to_tensor
@@ -9,6 +10,8 @@ from torchvision.transforms.v2.functional import pil_to_tensor
 from example_mlops.data import default_img_transform
 from example_mlops.model import load_from_checkpoint
 from example_mlops.utils import HydraRichLogger
+
+load_dotenv()
 
 logger = HydraRichLogger()
 
@@ -18,9 +21,7 @@ models = {}
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Load the model at startup and clean up at shutdown."""
-    cfg = OmegaConf.load("configs/app.yaml")
-    logger.info(f"Config: {cfg}")
-    model = load_from_checkpoint(cfg.model_checkpoint, logdir="models")
+    model = load_from_checkpoint(os.getenv("MODEL_CHECKPOINT"), logdir="models")
     models["mnist"] = model
     logger.info("Model loaded.")
 

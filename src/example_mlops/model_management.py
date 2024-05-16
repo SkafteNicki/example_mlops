@@ -84,6 +84,20 @@ def link_latest_model(model_name: str, aliases: list[str]):
 
 
 @click.command()
+@click.argument("model-name")
+def print_latest_model(model_name: str) -> None:
+    """Print the latest model in the model registry."""
+    api = wandb.Api(
+        api_key=os.getenv("WANDB_API_KEY"),
+        overrides={"entity": os.getenv("WANDB_ENTITY"), "project": os.getenv("WANDB_PROJECT")},
+    )
+    artifact_collection = api.artifact_collection(type_name="model", name=model_name)
+    for artifact in list(artifact_collection.artifacts()):
+        if "latest" in artifact.aliases:
+            print(artifact.name)
+
+
+@click.command()
 @click.argument("artifact-path")
 @click.option("--aliases", "-a", multiple=True, default=["staging"], help="List of aliases to link the artifact with.")
 def link_model(artifact_path: str, aliases: list[str]) -> None:
@@ -114,6 +128,7 @@ def link_model(artifact_path: str, aliases: list[str]) -> None:
     artifact.link(target_path=f"{os.getenv('WANDB_ENTITY')}/model-registry/{artifact_name}", aliases=aliases)
     artifact.save()
     logger.info("Model linked to registry.")
+    logger.info()
 
 
 @click.command()
@@ -165,7 +180,9 @@ def export_and_quantize(artifact_path: str) -> None:
 cli.add_command(stage_best_model_to_registry)
 cli.add_command(link_latest_model)
 cli.add_command(link_model)
+cli.add_command(print_latest_model)
 cli.add_command(export_and_quantize)
+
 
 if __name__ == "__main__":
     cli()

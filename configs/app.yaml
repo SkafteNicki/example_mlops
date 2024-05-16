@@ -1,3 +1,0 @@
-model:
-  checkpoint: models/checkpoint.ckpt
-  map_location: cpu

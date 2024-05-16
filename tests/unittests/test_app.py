@@ -1,13 +1,30 @@
 import os
 
 import pytest
+import pytorch_lightning as pl
+import torch
 from example_mlops.app import app
+from example_mlops.model import MnistClassifier
 from fastapi.testclient import TestClient
 
 from unittests import _TEST_ROOT
 
 
-def test_read_root():
+@pytest.fixture(scope="module")
+def model(tmpdir_factory):
+    """Load the model for testing."""
+    tmpdir = tmpdir_factory.mktemp("data")
+    model = MnistClassifier()
+    temp_checkpoint = os.path.join(tmpdir, "model.ckpt")
+    state_dict = {  # dummy checkpoint
+        "state_dict": model.state_dict(),
+        "pytorch-lightning_version": pl.__version__,
+    }
+    torch.save(state_dict, temp_checkpoint)
+    os.environ["MODEL_CHECKPOINT"] = temp_checkpoint
+
+
+def test_read_root(model):
     """Test the root endpoint of the API."""
     with TestClient(app) as client:
         response = client.get("/")
@@ -15,7 +32,7 @@ def test_read_root():
         assert response.json() == {"message": "Welcome to the MNIST model inference API!"}
 
 
-def test_health():
+def test_health(model):
     """Test the health check endpoint of the API."""
     with TestClient(app) as client:
         response = client.get("/health")
