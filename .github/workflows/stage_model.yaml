@@ -1,8 +1,8 @@
-name: Quality check staged model
+name: Check staged model
 
 on:
   repository_dispatch:
-    types: OPTIMIZE_AND_CONVERT
+    types: staged_model
   workflow_dispatch:
     inputs:
       model_name:
@@ -84,7 +84,7 @@ jobs:
         run: evaluate model_checkpoint=models/checkpoint_quantized.onnx upload_model=True
 
       - name: Link quantized model to model registry
-        run: model_management link-latest-model mnist_model -a staging
+        run: model_management link-latest-model mnist_model -a pre-production
 
       - name: Upload artifacts for future jobs
         uses: actions/upload-artifact@v2
