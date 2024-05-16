@@ -84,7 +84,7 @@ jobs:
         run: evaluate model_checkpoint=models/checkpoint_quantized.onnx upload_model=True
 
       - name: Link quantized model to model registry
-        run: model_management link-latest-model mnist_model -a staging -a onnx -a quantized
+        run: model_management link-latest-model mnist_model -a staging
 
       - name: Upload artifacts for future jobs
         uses: actions/upload-artifact@v2
