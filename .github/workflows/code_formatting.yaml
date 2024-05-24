@@ -24,7 +24,9 @@ jobs:
           cache-dependency-path: setup.py
 
       - name: Install dependencies
-        run: make dev_requirements
+        run: |
+          make dev_requirements
+          pip list
 
       - name: Ruff check
         run: ruff check .

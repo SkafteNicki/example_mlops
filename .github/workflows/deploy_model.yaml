@@ -44,7 +44,9 @@ jobs:
           cache-dependency-path: setup.py
 
       - name: Install dependencies
-        run: make dev_requirements
+        run: |
+          make dev_requirements
+          pip list
 
       - name: Auth with GCP
         uses: google-github-actions/auth@v2
