@@ -1,19 +1,50 @@
 name: Deploy production model
 
 on:
-  pull_request:
-    types: [closed]
-    branches:
-      - main
+  repository_dispatch:
+    types: deploy_model
+  workflow_dispatch:
+    inputs:
+      model_name:
+        description: 'Model artifact to be deployed'
+        required: true
+        type: string
 
 jobs:
-  deploy_model:
-    if: github.event.pull_request.merged == true && contains(github.event.pull_request.head.ref, 'deploy_model')
+  identify_event:
     runs-on: ubuntu-latest
+    outputs:
+      model_name: ${{ steps.set_output.outputs.model_name }}
+    steps:
+      - name: Check event type
+        run: |
+          if [ -n "${{ github.event.client_payload }}" ]; then
+            echo "Event type: repository_dispatch"
+            echo "Payload Data: ${{ toJson(github.event.client_payload) }}"
+          elif [ -n "${{ github.event.inputs }}" ]; then
+            echo "This is a workflow dispatch event"
+            # Access input parameters if needed
+            echo "Input Parameters: ${{ toJson(github.event.inputs) }}"
+          else
+            echo "Unknown event type"
+          fi
 
+  deploy_staged_model:
+    runs-on: ubuntu-latest
+    needs: performance_tests
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: setup.py
+
+      - name: Install dependencies
+        run: make dev_requirements
 
       - name: Auth with GCP
         uses: google-github-actions/auth@v2
@@ -23,5 +54,13 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
-      - name: Submit build
+      - name: Get model id of quantized model
         run: |
+          echo "MODEL_NAME=$(model_manager print_latest_model mnist_model)" >> $GITHUB_ENV
+
+      - name: Deploy model
+        env:
+          MODEL_NAME: ${{ env.MODEL_NAME }}
+        run: |
+          gcloud builds submit --config cloudbuild_deploy_model.yaml \
+            --substitutions=_MODEL_NAME="staged-model-{{ env.MODEL_NAME }}", _MODEL_CHECKPOINT={{ env.MODEL_NAME }}

@@ -12,6 +12,7 @@ steps:
     '--platform',
     'managed',
     '--allow-unauthenticated',
+    '--memory=1024Mi',
     '--set-env-vars=MODEL_CHECKPOINT=$_MODEL_CHECKPOINT',
     '--set-env-vars=WANDB_API_KEY=$$WANDB_API_KEY',
     '--set-env-vars=WANDB_ENTITY=$$WANDB_ENTITY',

@@ -21,6 +21,7 @@ models = {}
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Load the model at startup and clean up at shutdown."""
+    logger.info(f"Loading model from {os.getenv('MODEL_CHECKPOINT')}...")
     model = load_from_checkpoint(os.getenv("MODEL_CHECKPOINT"), logdir="models")
     models["mnist"] = model
     logger.info("Model loaded.")

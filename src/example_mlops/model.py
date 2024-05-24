@@ -146,7 +146,10 @@ def load_from_checkpoint(model_checkpoint: str, logdir: str = "models", return_p
             model = MnistClassifier.load_from_checkpoint(model_checkpoint, map_location="cpu").eval()
         path = model_checkpoint
     else:
-        api = wandb.Api(api_key=os.getenv("WANDB_API_KEY"))
+        api = wandb.Api(
+            api_key=os.getenv("WANDB_API_KEY"),
+            overrides={"entity": os.getenv("WANDB_ENTITY"), "project": os.getenv("WANDB_PROJECT")},
+        )
         artifact = api.artifact(model_checkpoint)
         artifact.download(root=logdir)
         file_name = artifact.files()[0].name
