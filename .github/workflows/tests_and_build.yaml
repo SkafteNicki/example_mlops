@@ -39,7 +39,7 @@ jobs:
 
       - name: Pull data
         run: |
-          dvc pull
+          dvc pull --no-run-cache
           python -c "from pathlib import Path; print([str(file) for file in Path('data').rglob('*') if file.is_file()])"
 
       - name: Run tests & coverage
