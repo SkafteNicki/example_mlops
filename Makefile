@@ -58,6 +58,15 @@ container_run:  # run using "make container_run command=<your-command>"
 		--rm \
 		base:latest
 
+container_serve:
+	docker run \
+		-p 8000:8000 \
+		--env-file .env \
+		-e "PORT=8000" \
+		-e "MODEL_CHECKPOINT=best_mlops_team/example_mlops_project/mnist_model:v19" \
+		--rm \
+		app:latest
+
 check_code:
 	ruff check . --fix --exit-zero
 	ruff format .
@@ -103,16 +112,17 @@ service_account:
 	echo "service_account_key.json" >> .gitignore
 
 serve_app:
-	uvicorn src.example_mlops.app:app --reload
+	uvicorn src.example_mlops.app:app
 
-docker_serve_app:
-	docker run \
-		-p 8000:8000 \
-		-v $(CURRENT_DIR)/models:/app/models/ \
-		-e "MODEL_CHECKPOINT=models/checkpoint.ckpt" \
-		-e "PORT=8000" \
-		--rm \
-		app:latest
+loadtest:
+	locust -f tests/loadtests/locustfile.py --headless -u 100 -r 10 --run-time 1m -H http://localhost:8000
+
+deploy_model:
+	gcloud builds submit \
+		--config cloudbuild_deploy_model.yaml \
+		--substitutions=_MODEL_NAME=example-mlops-model,_MODEL_CHECKPOINT=best_mlops_team/example_mlops_project/mnist_model:v19
+
+
 
 #################################################################################
 # Documentation RULES                                                           #

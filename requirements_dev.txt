@@ -6,3 +6,4 @@ coverage>=7.5.0
 pytest>=8.2.0
 mypy>=1.10.0
 pytest-benchmark>=4.0.0
+locust>=2.27.0
