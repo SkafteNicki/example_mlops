@@ -13,7 +13,7 @@ from example_mlops.utils import HydraRichLogger
 
 load_dotenv()
 
-logger = HydraRichLogger()
+logger = HydraRichLogger(level=os.getenv("LOG_LEVEL", "INFO"))
 
 models = {}
 
@@ -22,6 +22,10 @@ models = {}
 async def lifespan(app: FastAPI):
     """Load the model at startup and clean up at shutdown."""
     logger.info(f"Loading model from {os.getenv('MODEL_CHECKPOINT')}...")
+    if os.getenv("MODEL_CHECKPOINT") is None:
+        logger.error("No model checkpoint found.")
+        exit(1)
+
     model = load_from_checkpoint(os.getenv("MODEL_CHECKPOINT"), logdir="models")
     models["mnist"] = model
     logger.info("Model loaded.")

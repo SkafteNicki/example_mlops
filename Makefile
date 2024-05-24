@@ -120,9 +120,7 @@ loadtest:
 deploy_model:
 	gcloud builds submit \
 		--config cloudbuild_deploy_model.yaml \
-		--substitutions=_MODEL_NAME=example-mlops-model,_MODEL_CHECKPOINT=best_mlops_team/example_mlops_project/mnist_model:v19
-
-
+		--substitutions=_MODEL_NAME=testing-model,_MODEL_CHECKPOINT=best_mlops_team/example_mlops_project/mnist_model:v19
 
 #################################################################################
 # Documentation RULES                                                           #

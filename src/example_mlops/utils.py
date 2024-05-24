@@ -74,7 +74,7 @@ class HydraRichLogger(object):
             },
             "root": {
                 "handlers": ["console", "file"],
-                "level": logging.INFO,
+                "level": self.level,
                 "propagate": True,
             },
         }

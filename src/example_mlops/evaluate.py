@@ -23,7 +23,7 @@ from example_mlops.model import load_from_checkpoint
 from example_mlops.utils import HydraRichLogger, get_hydra_dir_and_job_name
 
 load_dotenv()
-logger = HydraRichLogger()
+logger = HydraRichLogger(level=os.getenv("LOG_LEVEL", "INFO"))
 
 
 @hydra.main(version_base=None, config_path=f"{os.getcwd()}/configs", config_name="evaluate")

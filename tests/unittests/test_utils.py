@@ -1,3 +1,5 @@
+import os
+
 import pytest
 import torch
 from example_mlops.utils import HydraRichLogger, get_dtype_from_string
@@ -13,7 +15,7 @@ def test_get_dtype_from_string(dtype):
 
 def test_logger():
     """Test that logger can be initialized and logs messages."""
-    logger = HydraRichLogger()
+    logger = HydraRichLogger(level=os.getenv("LOG_LEVEL", "INFO"))
     logger.info("This is an info message")
     logger.warning("This is a warning message")
     logger.error("This is an error message")

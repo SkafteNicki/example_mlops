@@ -16,7 +16,7 @@ from example_mlops.model import load_from_checkpoint
 from example_mlops.utils import HydraRichLogger
 
 load_dotenv()
-logger = HydraRichLogger()
+logger = HydraRichLogger(level=os.getenv("LOG_LEVEL", "INFO"))
 
 
 @click.group()

@@ -198,8 +198,10 @@ jobs:
 
       - name: Extract deployed model URL
         run: |
-          DEPLOYED_MODEL_URL=$(gcloud run services describe staged-model-{{ env.MODEL_NAME }} --format='value(status.url)')
+          DEPLOYED_MODEL_URL=$(gcloud run services describe staged-model-${{ env.MODEL_NAME }} --format='value(status.url)')
           echo "DEPLOYED_MODEL_URL=$DEPLOYED_MODEL_URL" >> $GITHUB_ENV
 
       - name: Run load test on deployed model
-        run: locust -f tests/loadtests/locustfile.py --headless -u 100 -r 10 --run-time 1m --host=https://$DEPLOYED_MODEL_URL
+        env:
+          DEPLOYED_MODEL_URL: ${{ env.DEPLOYED_MODEL_URL }}
+        run: locust -f tests/loadtests/locustfile.py --headless -u 100 -r 10 --run-time 1m --host=$DEPLOYED_MODEL_URL

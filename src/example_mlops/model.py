@@ -9,6 +9,9 @@ from torch import nn
 from torchvision import models
 
 import wandb
+from example_mlops.utils import HydraRichLogger
+
+logger = HydraRichLogger(level=os.getenv("LOG_LEVEL", "INFO"))
 
 
 class MnistClassifier(LightningModule):
@@ -146,6 +149,10 @@ def load_from_checkpoint(model_checkpoint: str, logdir: str = "models", return_p
             model = MnistClassifier.load_from_checkpoint(model_checkpoint, map_location="cpu").eval()
         path = model_checkpoint
     else:
+        logger.debug("Loading model from wandb artifact...")
+        logger.debug(f"WANDB_API_KEY: {os.getenv('WANDB_API_KEY')}")
+        logger.debug(f"WANDB_ENTITY: {os.getenv('WANDB_ENTITY')}")
+        logger.debug(f"WANDB_PROJECT: {os.getenv('WANDB_PROJECT')}")
         api = wandb.Api(
             api_key=os.getenv("WANDB_API_KEY"),
             overrides={"entity": os.getenv("WANDB_ENTITY"), "project": os.getenv("WANDB_PROJECT")},

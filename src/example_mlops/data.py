@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader, Dataset
 
 from example_mlops.utils import HydraRichLogger
 
-logger = HydraRichLogger()
+logger = HydraRichLogger(level=os.getenv("LOG_LEVEL", "INFO"))
 
 unsqueeze_transform = transforms.Lambda(lambda x: x.unsqueeze(0))
 
