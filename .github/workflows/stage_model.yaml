@@ -204,4 +204,4 @@ jobs:
       - name: Run load test on deployed model
         env:
           DEPLOYED_MODEL_URL: ${{ env.DEPLOYED_MODEL_URL }}
-        run: locust -f tests/loadtests/locustfile.py --headless -u 100 -r 10 --run-time 1m --host=$DEPLOYED_MODEL_URL
+        run: locust -f tests/performance/locustfile.py --headless -u 100 -r 10 --run-time 1m --host=$DEPLOYED_MODEL_URL

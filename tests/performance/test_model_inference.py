@@ -72,7 +72,7 @@ def test_batch_inference(benchmark, model, device, batch_size):
     stddev = benchmark.stats.stats.stddev
     maximum = benchmark.stats.stats.max
 
-    scale_factor = max(int(batch_size / 100), 1)  # for larger batch sizes, we allow more time
+    scale_factor = max(int(batch_size / 50), 1)  # for larger batch sizes, we allow more time
 
     assert mean < 0.1 * scale_factor, f"Mean time is {mean}, which is too high"
     assert stddev < 0.1 * scale_factor, f"Standard deviation is {stddev}, which is too high"

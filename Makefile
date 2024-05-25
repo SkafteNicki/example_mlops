@@ -121,7 +121,7 @@ serve_app:
 	uvicorn src.example_mlops.app:app
 
 loadtest:
-	locust -f tests/loadtests/locustfile.py --headless -u 100 -r 10 --run-time 1m -H http://localhost:8000
+	locust -f tests/performance/locustfile.py --headless -u 100 -r 10 --run-time 1m -H http://localhost:8000
 
 deploy_model:
 	gcloud builds submit \
