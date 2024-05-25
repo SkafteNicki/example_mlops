@@ -19,6 +19,7 @@ steps:
     'dockerfiles/app.dockerfile'
   ]
   env: 'DOCKER_BUILDKIT=1'
+  waitFor: ['-']  # concurrent builds
 images:
 - 'europe-west1-docker.pkg.dev/$PROJECT_ID/example-mlops-containers/base'
 - 'europe-west1-docker.pkg.dev/$PROJECT_ID/example-mlops-containers/app'

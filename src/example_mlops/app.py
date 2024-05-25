@@ -57,6 +57,15 @@ def health():
     return {"status": "healthy"}
 
 
+@app.get("/models")
+def models():
+    """Return model information."""
+    return {
+        "model architecture": str(models["mnist"]),
+        "model parameters": sum(p.numel() for p in models["mnist"].parameters()),
+    }
+
+
 @app.post("/predict")
 def predict(image_request: ImageRequest):
     """Predict the label of a given image."""

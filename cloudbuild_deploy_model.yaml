@@ -1,6 +1,7 @@
 # Deploy container image to Cloud Run
 steps:
 - name: 'gcr.io/cloud-builders/gcloud'
+  id: 'Deploy to Cloud Run'
   args: [
     'run',
     'deploy',
@@ -11,26 +12,29 @@ steps:
     'europe-west1',
     '--platform',
     'managed',
-    '--allow-unauthenticated',
     '--memory=1024Mi',
     '--set-env-vars=MODEL_CHECKPOINT=$_MODEL_CHECKPOINT',
-    '--set-env-vars=WANDB_API_KEY=$$WANDB_API_KEY',
-    '--set-env-vars=WANDB_ENTITY=$$WANDB_ENTITY',
-    '--set-env-vars=WANDB_PROJECT=$$WANDB_PROJECT',
+    '--set-env-vars=LOG_LEVEL=DEBUG',
+    '--update-secrets=WANDB_API_KEY=WANDB_API_KEY:latest',
+    '--update-secrets=WANDB_ENTITY=WANDB_ENTITY:latest',
+    '--update-secrets=WANDB_PROJECT=WANDB_PROJECT:latest',
   ]
-  secretEnv: ['WANDB_API_KEY', 'WANDB_ENTITY', 'WANDB_PROJECT']
+- name: 'gcr.io/cloud-builders/gcloud'
+  id: 'Set IAM Policy to allow all users to invoke the service'
+  waitFor: ['Deploy to Cloud Run']
+  args: [
+    'run',
+    'services',
+    'add-iam-policy-binding',
+    '--region=europe-west1',
+    '--member=allUsers',
+    '--role=roles/run.invoker',
+    '$_MODEL_NAME',
+  ]
 
 substitutions:
   _MODEL_NAME: 'app'
   _MODEL_CHECKPOINT: 'models/checkpoint.onnx'
 
-availableSecrets:
-  secretManager:
-  - versionName: projects/$PROJECT_ID/secrets/WANDB_API_KEY/versions/latest
-    env: 'WANDB_API_KEY'
-  - versionName: projects/$PROJECT_ID/secrets/WANDB_ENTITY/versions/latest
-    env: 'WANDB_ENTITY'
-  - versionName: projects/$PROJECT_ID/secrets/WANDB_PROJECT/versions/latest
-    env: 'WANDB_PROJECT'
 options:
   logging: CLOUD_LOGGING_ONLY
