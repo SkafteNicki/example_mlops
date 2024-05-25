@@ -1,0 +1,7 @@
+# config_cpu.yaml
+workerPoolSpecs:
+    machineSpec:
+        machineType: n2-standard-8
+    replicaCount: 1
+    containerSpec:
+        imageUri: europe-west1-docker.pkg.dev/my-personal-mlops-project/example-mlops-containers/base

@@ -8,6 +8,7 @@ RUN mkdir /app
 
 WORKDIR /app
 
+COPY configs/ /app/configs
 COPY requirements.txt /app/requirements.txt
 COPY pyproject.toml /app/pyproject.toml
 COPY src/ /app/src

@@ -1,0 +1,31 @@
+steps:
+  # - name: "ubuntu"
+  #   env:
+  #     - "IMAGE_APP=${_IMAGE_APP}"
+  #   script: |
+  #     sed -i s@%SAMPLE_APP_IMAGE%@${IMAGE_APP}@g run-service-simple.yaml
+  #   id: REPLACE_YAML_VALUE
+  #   waitFor:
+  #     - PUSH_SAMPLE_APP
+- name: 'gcr.io/cloud-builders/gcloud'
+  id: 'Train on vertex AI'
+  args: [
+    'ai',
+    'custom-jobs',
+    'create',
+    '--region',
+    'europe-west1',
+    '--display-name',
+    'example-mlops-job',
+    '--config',
+    '${_VERTEX_TRAIN_CONFIG}',
+    '--command',
+    'train',
+    '--args',
+    '${_VERTEX_TRAIN_ARGS}',
+  ]
+substitutions:
+  _VERTEX_TRAIN_CONFIG: 'configs/gcp/vertex_cpu.yaml'
+  _VERTEX_TRAIN_ARGS: 'datamodule.data=/gcs/example_mlops_data/data'
+# options:
+#   logging: CLOUD_LOGGING_ONLY
