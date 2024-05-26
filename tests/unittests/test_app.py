@@ -14,10 +14,10 @@ from unittests import _TEST_ROOT
 def model(tmpdir_factory):
     """Load the model for testing."""
     tmpdir = tmpdir_factory.mktemp("data")
-    model = MnistClassifier()
+    tempmodel = MnistClassifier()
     temp_checkpoint = os.path.join(tmpdir, "model.ckpt")
     state_dict = {  # dummy checkpoint
-        "state_dict": model.state_dict(),
+        "state_dict": tempmodel.state_dict(),
         "pytorch-lightning_version": pl.__version__,
     }
     torch.save(state_dict, temp_checkpoint)

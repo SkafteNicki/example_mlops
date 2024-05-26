@@ -26,14 +26,14 @@ async def lifespan(app: FastAPI):
         logger.error("No model checkpoint found.")
         exit(1)
 
-    model = load_from_checkpoint(os.getenv("MODEL_CHECKPOINT"), logdir="models")
-    models["mnist"] = model
+    mnist_model = load_from_checkpoint(os.getenv("MODEL_CHECKPOINT"), logdir="models")
+    models["mnist"] = mnist_model
     logger.info("Model loaded.")
 
     yield  # Wait for the application to finish
 
     logger.info("Cleaning up...")
-    del model
+    del mnist_model
 
 
 app = FastAPI(lifespan=lifespan)
@@ -57,8 +57,8 @@ def health():
     return {"status": "healthy"}
 
 
-@app.get("/models")
-def models():
+@app.get("/modelstats")
+def modelstats():
     """Return model information."""
     return {
         "model architecture": str(models["mnist"]),
