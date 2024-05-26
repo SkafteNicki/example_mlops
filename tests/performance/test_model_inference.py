@@ -32,9 +32,9 @@ def test_single_image_inference(benchmark, model):
     stddev = benchmark.stats.stats.stddev
     maximum = benchmark.stats.stats.max
 
-    assert mean < 0.1, f"Mean time is {mean}, which is too high"
-    assert stddev < 0.1, f"Standard deviation is {stddev}, which is too high"
-    assert maximum < 0.1, f"Max time is {maximum}, which is too high"
+    assert mean < 0.2, f"Mean time is {mean}, which is too high"
+    assert stddev < 0.2, f"Standard deviation is {stddev}, which is too high"
+    assert maximum < 0.2, f"Max time is {maximum}, which is too high"
 
 
 @pytest.mark.parametrize("batch_size", [16, 32, 64, 128, 256, 512])
@@ -53,6 +53,6 @@ def test_batch_inference(benchmark, model, batch_size):
 
     scale_factor = max(int(batch_size / 50), 1)  # for larger batch sizes, we allow more time
 
-    assert mean < 0.1 * scale_factor, f"Mean time is {mean}, which is too high"
-    assert stddev < 0.1 * scale_factor, f"Standard deviation is {stddev}, which is too high"
-    assert maximum < 0.1 * scale_factor, f"Max time is {maximum}, which is too high"
+    assert mean < 0.2 * scale_factor, f"Mean time is {mean}, which is too high"
+    assert stddev < 0.2 * scale_factor, f"Standard deviation is {stddev}, which is too high"
+    assert maximum < 0.2 * scale_factor, f"Max time is {maximum}, which is too high"

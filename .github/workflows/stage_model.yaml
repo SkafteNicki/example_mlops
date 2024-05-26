@@ -94,7 +94,7 @@ jobs:
           name: models
           path: models/
 
-  performance_tests:
+  inference_tests:
     runs-on: ubuntu-latest
     needs: evaluate_model
     steps:
@@ -137,7 +137,7 @@ jobs:
 
   deploy_staged_model:
     runs-on: ubuntu-latest
-    needs: performance_tests
+    needs: inference_tests
     env:
       WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
       WANDB_ENTITY: ${{ secrets.WANDB_ENTITY }}
@@ -180,6 +180,10 @@ jobs:
   loadtest_deployed_model:
     runs-on: ubuntu-latest
     needs: deploy_staged_model
+    env:
+      WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
+      WANDB_ENTITY: ${{ secrets.WANDB_ENTITY }}
+      WANDB_PROJECT: ${{ secrets.WANDB_PROJECT }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -196,7 +200,13 @@ jobs:
           make dev_requirements
           pip list
 
+      - name: Get model id of quantized model
+        run: |
+          echo "MODEL_NAME=$(model_management print_latest_model mnist_model)" >> $GITHUB_ENV
+
       - name: Extract deployed model URL
+        env:
+          MODEL_NAME: ${{ env.MODEL_NAME }}
         run: |
           DEPLOYED_MODEL_URL=$(gcloud run services describe staged-model-${{ env.MODEL_NAME }} --format='value(status.url)')
           echo "DEPLOYED_MODEL_URL=$DEPLOYED_MODEL_URL" >> $GITHUB_ENV
