@@ -18,25 +18,15 @@ def model():
     return model
 
 
-@pytest.mark.parametrize(
-    "device",
-    [
-        pytest.param("cpu"),
-        pytest.param("cuda", marks=pytest.mark.skipif(not torch.cuda.is_available(), reason="No GPU available")),
-    ],
-)
-def test_single_image_inference(benchmark, model, device):
+def test_single_image_inference(benchmark, model):
     """Test the inference of a single image."""
-    model = model.to(device)
-    x = torch.randn(1, 3, 28, 28).to(device)
+    x = torch.randn(1, 3, 28, 28)
 
     probs, preds = benchmark(model.inference, x=x)
     assert probs.shape == (1, 10)
     assert preds.shape == (1,)
     assert 0 <= preds.item() <= 9
     assert torch.allclose(probs.sum().cpu(), torch.ones(1))
-
-    model = model.cpu()
 
     mean = benchmark.stats.stats.mean
     stddev = benchmark.stats.stats.stddev
@@ -48,25 +38,14 @@ def test_single_image_inference(benchmark, model, device):
 
 
 @pytest.mark.parametrize("batch_size", [16, 32, 64, 128, 256, 512])
-@pytest.mark.parametrize(
-    "device",
-    [
-        pytest.param("cpu"),
-        pytest.param("cuda", marks=pytest.mark.skipif(not torch.cuda.is_available(), reason="No GPU available")),
-    ],
-)
-def test_batch_inference(benchmark, model, device, batch_size):
+def test_batch_inference(benchmark, model, batch_size):
     """Test the inference of a batch of images."""
-    model = model.to(device)
-    x = torch.randn(batch_size, 3, 28, 28).to(device)
-
+    x = torch.randn(batch_size, 3, 28, 28)
     probs, preds = benchmark(model.inference, x=x)
     assert probs.shape == (batch_size, 10)
     assert preds.shape == (batch_size,)
     assert (0 <= preds).all() and (preds <= 9).all()
     assert torch.allclose(probs.sum(dim=1).cpu(), torch.ones(batch_size))
-
-    model = model.cpu()
 
     mean = benchmark.stats.stats.mean
     stddev = benchmark.stats.stats.stddev

@@ -1,7 +1,14 @@
 # config_cpu.yaml
 workerPoolSpecs:
-    machineSpec:
-        machineType: n2-standard-8
-    replicaCount: 1
-    containerSpec:
-        imageUri: europe-west1-docker.pkg.dev/my-personal-mlops-project/example-mlops-containers/base
+  machineSpec:
+    machineType: n2-standard-8
+  replicaCount: 1
+  containerSpec:
+    imageUri: europe-west1-docker.pkg.dev/my-personal-mlops-project/example-mlops-containers/base
+    env:
+    - name: WANDB_API_KEY
+      value: $WANDB_API_KEY
+    - name: WANDB_ENTITY
+      value: $WANDB_ENTITY
+    - name: WANDB_PROJECT
+      value: $WANDB_PROJECT

@@ -1,14 +1,26 @@
 steps:
-  # - name: "ubuntu"
-  #   env:
-  #     - "IMAGE_APP=${_IMAGE_APP}"
-  #   script: |
-  #     sed -i s@%SAMPLE_APP_IMAGE%@${IMAGE_APP}@g run-service-simple.yaml
-  #   id: REPLACE_YAML_VALUE
-  #   waitFor:
-  #     - PUSH_SAMPLE_APP
+- name: "alpine"
+  id: "Replace values in the training config"
+  entrypoint: "sh"
+  args:
+    - '-c'
+    - |
+      apk add --no-cache gettext
+      envsubst < ${_VERTEX_TRAIN_CONFIG} > ${_VERTEX_TRAIN_CONFIG}.tmp
+      mv ${_VERTEX_TRAIN_CONFIG}.tmp ${_VERTEX_TRAIN_CONFIG}
+  secretEnv: ['WANDB_API_KEY', 'WANDB_ENTITY', 'WANDB_PROJECT']
+
+- name: 'alpine'
+  id: "Show config"
+  entrypoint: "sh"
+  args:
+    - '-c'
+    - |
+      cat ${_VERTEX_TRAIN_CONFIG}
+
 - name: 'gcr.io/cloud-builders/gcloud'
   id: 'Train on vertex AI'
+  waitFor: ['Replace values in the training config']
   args: [
     'ai',
     'custom-jobs',
@@ -24,6 +36,14 @@ steps:
     '--args',
     '${_VERTEX_TRAIN_ARGS}',
   ]
+availableSecrets:
+  secretManager:
+  - versionName: projects/$PROJECT_ID/secrets/WANDB_API_KEY/versions/latest
+    env: 'WANDB_API_KEY'
+  - versionName: projects/$PROJECT_ID/secrets/WANDB_ENTITY/versions/latest
+    env: 'WANDB_ENTITY'
+  - versionName: projects/$PROJECT_ID/secrets/WANDB_PROJECT/versions/latest
+    env: 'WANDB_PROJECT'
 substitutions:
   _VERTEX_TRAIN_CONFIG: 'configs/gcp/vertex_cpu.yaml'
   _VERTEX_TRAIN_ARGS: 'datamodule.data=/gcs/example_mlops_data/data'
