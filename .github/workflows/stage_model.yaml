@@ -168,7 +168,7 @@ jobs:
 
       - name: Get model id of quantized model
         run: |
-          echo "MODEL_NAME=$(model_management print_latest_model mnist_model)" >> $GITHUB_ENV
+          echo "MODEL_NAME=$(model_management print-latest-model mnist_model)" >> $GITHUB_ENV
 
       - name: Deploy model
         env:
