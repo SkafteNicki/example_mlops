@@ -174,7 +174,7 @@ jobs:
         env:
           MODEL_CHECKPOINT: ${{ env.MODEL_CHECKPOINT }}
         run: |
-          echo "MODEL_NAME=$(python -c "import os; print('staged-model-' + os.getenv('MODEL_CHECKPOINT').replace(':', '_'))")" >> $GITHUB_ENV
+          echo "MODEL_NAME=$(python -c "import os; print('staged-model-' + os.getenv('MODEL_CHECKPOINT').replace(':', '-').replace('_','-'))") >> $GITHUB_ENV
 
       - name: Deploy model
         env:
@@ -208,10 +208,15 @@ jobs:
           make dev_requirements
           pip list
 
-      - name: Get model id of quantized model
+      - name: Get model checkpoint
         run: |
           echo "MODEL_CHECKPOINT=$(model_management print-latest-model mnist_model)" >> $GITHUB_ENV
-          echo "MODEL_NAME=$(python -c "import os; print('staged-model-' + os.getenv('MODEL_CHECKPOINT').replace(':', '-').replace('_','-'))")
+
+      - name: Set model name
+        env:
+          MODEL_CHECKPOINT: ${{ env.MODEL_CHECKPOINT }}
+        run: |
+          echo "MODEL_NAME=$(python -c "import os; print('staged-model-' + os.getenv('MODEL_CHECKPOINT').replace(':', '-').replace('_','-'))") >> $GITHUB_ENV
 
       - name: Extract deployed model URL
         env:
