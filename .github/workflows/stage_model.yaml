@@ -211,7 +211,7 @@ jobs:
       - name: Get model id of quantized model
         run: |
           echo "MODEL_CHECKPOINT=$(model_management print-latest-model mnist_model)" >> $GITHUB_ENV
-          echo "MODEL_NAME=$(python -c "import os; print('staged-model-' + os.getenv('MODEL_CHECKPOINT').replace(':', '_'))")
+          echo "MODEL_NAME=$(python -c "import os; print('staged-model-' + os.getenv('MODEL_CHECKPOINT').replace(':', '-').replace('_','-'))")
 
       - name: Extract deployed model URL
         env:
