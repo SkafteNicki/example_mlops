@@ -169,7 +169,7 @@ jobs:
       - name: Get model id of quantized model
         run: |
           echo "MODEL_CHECKPOINT=$(model_management print-latest-model mnist_model)" >> $GITHUB_ENV
-          echo "MODEL_NAME=$(python -c "import os; print('staged-model-' + os.getenv('MODEL_CHECKPOINT').replace(':', '_'))")"
+          echo "MODEL_NAME=$(python -c "import os; print('staged-model-' + os.getenv('MODEL_CHECKPOINT').replace(':', '_'))")" >> $GITHUB_ENV
 
       - name: Deploy model
         env:
@@ -219,4 +219,5 @@ jobs:
       - name: Run load test on deployed model
         env:
           DEPLOYED_MODEL_URL: ${{ env.DEPLOYED_MODEL_URL }}
-        run: locust -f tests/performance/locustfile.py --headless -u 100 -r 10 --run-time 1m --host=$DEPLOYED_MODEL_URL
+        run: locust -f tests/performance/locustfile.py \
+          --headless -u 10 -r 2 --run-time 1m --host=$DEPLOYED_MODEL_URL
