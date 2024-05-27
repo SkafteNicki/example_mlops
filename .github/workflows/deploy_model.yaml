@@ -88,7 +88,7 @@ jobs:
 
       - name: Extract deployed model URL
         run: |
-          DEPLOYED_MODEL_URL=$(gcloud run services describe production-model --format='value(status.url)')
+          DEPLOYED_MODEL_URL=$(gcloud run services describe production-model --region=europe-west1 --format='value(status.url)')
           echo "DEPLOYED_MODEL_URL=$DEPLOYED_MODEL_URL" >> $GITHUB_ENV
 
       - name: Run load test on deployed model

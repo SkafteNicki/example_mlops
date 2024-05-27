@@ -223,7 +223,7 @@ jobs:
           MODEL_NAME: ${{ env.MODEL_NAME }}
           MODEL_CHECKPOINT: ${{ env.MODEL_CHECKPOINT }}
         run: |
-          DEPLOYED_MODEL_URL=$(gcloud run services describe $MODEL_NAME --format='value(status.url)')
+          DEPLOYED_MODEL_URL=$(gcloud run services describe $MODEL_NAME --region=europe-west1 --format='value(status.url)')
           echo "DEPLOYED_MODEL_URL=$DEPLOYED_MODEL_URL" >> $GITHUB_ENV
 
       - name: Run load test on deployed model
