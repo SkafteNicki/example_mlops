@@ -174,8 +174,9 @@ jobs:
         env:
           MODEL_NAME: ${{ env.MODEL_NAME }}
         run: |
-          gcloud builds submit --config cloudbuild_deploy_model.yaml \
-            --substitutions=_MODEL_NAME="staged-model-$MODEL_NAME", _MODEL_CHECKPOINT=$MODEL_NAME
+          gcloud builds submit \
+            --config cloudbuild_deploy_model.yaml \
+            --substitutions=_MODEL_NAME="staged-model-$MODEL_NAME",_MODEL_CHECKPOINT=$MODEL_NAME
 
   loadtest_deployed_model:
     runs-on: ubuntu-latest
