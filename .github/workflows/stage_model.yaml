@@ -174,7 +174,7 @@ jobs:
         env:
           MODEL_CHECKPOINT: ${{ env.MODEL_CHECKPOINT }}
         run: |
-          echo "MODEL_NAME=$(python -c "import os; print('staged-model-' + os.getenv('MODEL_CHECKPOINT').replace(':', '-').replace('_','-'))") >> $GITHUB_ENV
+          echo "MODEL_NAME=$(python -c "import os; print('staged-model-' + os.getenv('MODEL_CHECKPOINT').replace(':', '-').replace('_','-'))")" >> $GITHUB_ENV
 
       - name: Deploy model
         env:
@@ -216,7 +216,7 @@ jobs:
         env:
           MODEL_CHECKPOINT: ${{ env.MODEL_CHECKPOINT }}
         run: |
-          echo "MODEL_NAME=$(python -c "import os; print('staged-model-' + os.getenv('MODEL_CHECKPOINT').replace(':', '-').replace('_','-'))") >> $GITHUB_ENV
+          echo "MODEL_NAME=$(python -c "import os; print('staged-model-' + os.getenv('MODEL_CHECKPOINT').replace(':', '-').replace('_','-'))")" >> $GITHUB_ENV
 
       - name: Extract deployed model URL
         env:
