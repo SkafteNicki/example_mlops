@@ -1,3 +1,5 @@
+"""Evaluate model on test dataset."""
+
 import os
 
 import hydra

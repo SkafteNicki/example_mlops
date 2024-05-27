@@ -1,3 +1,5 @@
+"""Model definition."""
+
 import os
 
 import onnxruntime as ort

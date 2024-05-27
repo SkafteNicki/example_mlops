@@ -1,3 +1,5 @@
+"""Visualize model predictions."""
+
 import click
 import matplotlib.pyplot as plt
 import torch

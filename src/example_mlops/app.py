@@ -1,3 +1,5 @@
+"""API for the MNIST model."""
+
 import os
 from contextlib import asynccontextmanager
 

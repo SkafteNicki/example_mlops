@@ -1,3 +1,5 @@
+"""Commands for model management."""
+
 import operator
 import os
 

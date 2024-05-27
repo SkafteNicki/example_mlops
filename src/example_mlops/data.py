@@ -1,3 +1,5 @@
+"""Data module for MNIST dataset."""
+
 import os
 from dataclasses import dataclass
 

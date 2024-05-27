@@ -1,3 +1,5 @@
+"""Train and evaluate the model."""
+
 import os
 import shutil
 
