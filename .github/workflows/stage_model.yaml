@@ -175,7 +175,7 @@ jobs:
           MODEL_NAME: ${{ env.MODEL_NAME }}
         run: |
           gcloud builds submit --config cloudbuild_deploy_model.yaml \
-            --substitutions=_MODEL_NAME="staged-model-{{ env.MODEL_NAME }}", _MODEL_CHECKPOINT={{ env.MODEL_NAME }}
+            --substitutions=_MODEL_NAME="staged-model-$MODEL_NAME", _MODEL_CHECKPOINT=$MODEL_NAME
 
   loadtest_deployed_model:
     runs-on: ubuntu-latest
@@ -202,13 +202,13 @@ jobs:
 
       - name: Get model id of quantized model
         run: |
-          echo "MODEL_NAME=$(model_management print_latest_model mnist_model)" >> $GITHUB_ENV
+          echo "MODEL_NAME=$(model_management print-latest-model mnist_model)" >> $GITHUB_ENV
 
       - name: Extract deployed model URL
         env:
           MODEL_NAME: ${{ env.MODEL_NAME }}
         run: |
-          DEPLOYED_MODEL_URL=$(gcloud run services describe staged-model-${{ env.MODEL_NAME }} --format='value(status.url)')
+          DEPLOYED_MODEL_URL=$(gcloud run services describe staged-model-$MODEL_NAME --format='value(status.url)')
           echo "DEPLOYED_MODEL_URL=$DEPLOYED_MODEL_URL" >> $GITHUB_ENV
 
       - name: Run load test on deployed model
