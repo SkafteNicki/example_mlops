@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       model_name:
-        description: 'Model artifact to be deployed'
+        description: 'Model artifact to production workflow'
         required: true
         type: string
 
@@ -45,7 +45,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: 3.11
           cache: 'pip'
           cache-dependency-path: setup.py
 
@@ -64,7 +64,8 @@ jobs:
 
       - name: Deploy model
         run: |
-          gcloud builds submit --config cloudbuild_deploy_model.yaml \
+          gcloud builds submit \
+            --config cloudbuild_deploy_model.yaml \
             --substitutions=_MODEL_NAME="production-model",_MODEL_CHECKPOINT=$MODEL_NAME
 
   loadtest_production_model:
@@ -86,9 +87,19 @@ jobs:
           make dev_requirements
           pip list
 
+      - name: Auth with GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
       - name: Extract deployed model URL
         run: |
-          DEPLOYED_MODEL_URL=$(gcloud run services describe production-model --region=europe-west1 --format='value(status.url)')
+          DEPLOYED_MODEL_URL=$(gcloud run services describe production-model \
+            --region=europe-west1 \
+            --format='value(status.url)')
           echo "DEPLOYED_MODEL_URL=$DEPLOYED_MODEL_URL" >> $GITHUB_ENV
 
       - name: Run load test on deployed model

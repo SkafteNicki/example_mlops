@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       model_name:
-        description: 'Model artifact to optimize and convert'
+        description: 'Model artifact to staging workflow'
         required: true
         type: string
 
