@@ -29,6 +29,15 @@ jobs:
             echo "Unknown event type"
           fi
 
+      - name: Setting model environment variable and output
+        id: set_output
+        run: |
+          if [ -n "${{ github.event.client_payload }}" ]; then
+            echo "model_name=${{ github.event.client_payload.artifact_version_string }}" >> $GITHUB_OUTPUT
+          elif [ -n "${{ github.event.inputs }}" ]; then
+            echo "model_name=${{ github.event.inputs.model_name }}" >> $GITHUB_OUTPUT
+          fi
+
   deploy_production_model:
     runs-on: ubuntu-latest
     needs: identify_event
