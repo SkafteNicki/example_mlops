@@ -208,6 +208,14 @@ jobs:
           make dev_requirements
           pip list
 
+      - name: Auth with GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
       - name: Get model checkpoint
         run: |
           echo "MODEL_CHECKPOINT=$(model_management print-latest-model mnist_model)" >> $GITHUB_ENV
@@ -225,7 +233,6 @@ jobs:
         run: |
           DEPLOYED_MODEL_URL=$(gcloud run services describe $MODEL_NAME \
             --region=europe-west1 \
-            --project=my-personal-mlops-project \
             --format='value(status.url)')
           echo "DEPLOYED_MODEL_URL=$DEPLOYED_MODEL_URL" >> $GITHUB_ENV
 
