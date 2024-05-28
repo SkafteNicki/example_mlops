@@ -58,3 +58,5 @@ def test_predict(image_path):
         response = client.post("/predict", files={"image": image_data})
         assert response.status_code == 200
         assert "prediction" in response.json()
+        assert response.json()["prediction"] in list(range(10))
+        assert "probabilities" in response.json()

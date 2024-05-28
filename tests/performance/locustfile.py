@@ -32,4 +32,6 @@ class MnistClassifierUser(HttpUser):
     def predict(self):
         """A task to hit the predict route."""
         test_img = test_imgs[random.randint(1, 3)]
-        self.client.post("/predict", json={"image": test_img})
+        with open(test_img, "rb") as f:
+            image_data = f.read()
+        self.client.post("/predict", files={"image": image_data})

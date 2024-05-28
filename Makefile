@@ -128,6 +128,9 @@ deploy_model:
 		--config cloudbuild_deploy_model.yaml \
 		--substitutions=_MODEL_NAME=testing-model,_MODEL_CHECKPOINT=best_mlops_team/example_mlops_project/mnist_model:v19
 
+frontend:
+	streamlit run src\example_mlops\frontend.py
+
 #################################################################################
 # Documentation RULES                                                           #
 #################################################################################
