@@ -88,30 +88,30 @@ class HydraRichLogger(object):
 
     def info(self, message: str) -> None:
         """Log an info message."""
-        self.logger = self.logger or self.get_logger()
+        self.logger = self.get_logger() if self.logger is None else self.logger
         self.logger.info(message)
 
     def debug(self, message: str) -> None:
         """Log a debug message."""
-        self.logger = self.logger or self.get_logger()
+        self.logger = self.get_logger() if self.logger is None else self.logger
         self.logger.debug(message)
 
     def error(self, message: str) -> None:
         """Log an error message."""
-        self.logger = self.logger or self.get_logger()
+        self.logger = self.get_logger() if self.logger is None else self.logger
         self.logger.error(message)
 
     def warning(self, message: str) -> None:
         """Log a warning message."""
-        self.logger = self.logger or self.get_logger()
+        self.logger = self.get_logger() if self.logger is None else self.logger
         self.logger.warning(message)
 
     def critical(self, message: str) -> None:
         """Log a critical message."""
-        self.logger = self.logger or self.get_logger()
+        self.logger = self.get_logger() if self.logger is None else self.logger
         self.logger.critical(message)
 
     def exception(self, message: str) -> None:
         """Log an exception message."""
-        self.logger = self.logger or self.get_logger()
+        self.logger = self.get_logger() if self.logger is None else self.logger
         self.logger.exception(message)

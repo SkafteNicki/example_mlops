@@ -63,7 +63,7 @@ def train_model(cfg: DictConfig) -> None:
             metadata={k.lstrip("test_"): round(v, 3) for k, v in results[0].items()},  # remove test_ prefix and round
         )
         artifact.add_file(f"{logdir}/checkpoints/checkpoint.ckpt")
-        wandb.run.log_artifact(artifact)
+        experiment_logger.experiment.log_artifact(artifact)
 
 
 if __name__ == "__main__":

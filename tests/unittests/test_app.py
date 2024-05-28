@@ -40,11 +40,21 @@ def test_health(model):
         assert response.json() == {"status": "healthy"}
 
 
+def test_modelstats(model):
+    """Test the modelstats endpoint of the API."""
+    with TestClient(app) as client:
+        response = client.get("/modelstats")
+        assert response.status_code == 200
+        assert "model architecture" in response.json()
+
+
 @pytest.mark.parametrize("image_path", ["img_1.jpg", "img_2.jpg", "img_3.jpg"])
 def test_predict(image_path):
     """Test the prediction endpoint of the API."""
     with TestClient(app) as client:
-        image_request = {"image": os.path.join(_TEST_ROOT, image_path)}
-        response = client.post("/predict", json=image_request)
+        image_file = os.path.join(_TEST_ROOT, image_path)
+        with open(image_file, "rb") as f:
+            image_data = f.read()
+        response = client.post("/predict", files={"image": image_data})
         assert response.status_code == 200
         assert "prediction" in response.json()
