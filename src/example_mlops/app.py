@@ -2,11 +2,11 @@
 
 import os
 from contextlib import asynccontextmanager
+from io import BytesIO
 
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, File
 from PIL import Image
-from pydantic import BaseModel
 from torchvision.transforms.v2.functional import pil_to_tensor
 
 from example_mlops.data import default_img_transform
@@ -41,12 +41,6 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 
-class ImageRequest(BaseModel):
-    """Request body schema for the image prediction route."""
-
-    image: str  # Path to the image file
-
-
 @app.get("/")
 def read_root():
     """Root endpoint of the API."""
@@ -64,14 +58,14 @@ def modelstats():
     """Return model information."""
     return {
         "model architecture": str(models["mnist"]),
-        "model parameters": sum(p.numel() for p in models["mnist"].parameters()),
     }
 
 
 @app.post("/predict")
-def predict(image_request: ImageRequest):
+async def predict(image: bytes = File(...)):
     """Predict the label of a given image."""
-    image_data = pil_to_tensor(Image.open(image_request.image))
+    pil_image = Image.open(BytesIO(image))
+    image_data = pil_to_tensor(pil_image)
     logger.info("Image loaded.")
     input_tensor = default_img_transform(image_data)
     probs, preds = models["mnist"].inference(input_tensor)

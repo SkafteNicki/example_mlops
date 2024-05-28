@@ -87,35 +87,35 @@ start_agent:  # Start agent for the latest sweep
 
 # run using "make -i data_service_account" to ignore if the service account already exists
 service_account:
-	gcloud iam service-accounts create bucket-service-account \
-		--description="Service account for data" --display-name="bucket-service-account"
+	gcloud iam service-accounts create global-service-account \
+		--description="Service account for data" --display-name="global-service-account"
 	gcloud projects add-iam-policy-binding $(GCP_PROJECT_NAME) \
-		--member="serviceAccount:bucket-service-account@$(GCP_PROJECT_NAME).iam.gserviceaccount.com" \
+		--member="serviceAccount:global-service-account@$(GCP_PROJECT_NAME).iam.gserviceaccount.com" \
 		--role="roles/storage.objectUser"
 	gcloud projects add-iam-policy-binding $(GCP_PROJECT_NAME) \
-		--member="serviceAccount:bucket-service-account@$(GCP_PROJECT_NAME).iam.gserviceaccount.com" \
+		--member="serviceAccount:global-service-account@$(GCP_PROJECT_NAME).iam.gserviceaccount.com" \
 		--role="roles/serviceusage.serviceUsageConsumer"
 	gcloud projects add-iam-policy-binding $(GCP_PROJECT_NAME) \
-		--member="serviceAccount:bucket-service-account@$(GCP_PROJECT_NAME).iam.gserviceaccount.com" \
+		--member="serviceAccount:global-service-account@$(GCP_PROJECT_NAME).iam.gserviceaccount.com" \
 		--role="roles/cloudbuild.builds.builder"
 	gcloud projects add-iam-policy-binding $(GCP_PROJECT_NAME) \
-		--member="serviceAccount:bucket-service-account@$(GCP_PROJECT_NAME).iam.gserviceaccount.com" \
+		--member="serviceAccount:global-service-account@$(GCP_PROJECT_NAME).iam.gserviceaccount.com" \
 		--role="roles/secretmanager.secretAccessor"
 	gcloud projects add-iam-policy-binding $(GCP_PROJECT_NAME) \
-		--member="serviceAccount:bucket-service-account@$(GCP_PROJECT_NAME).iam.gserviceaccount.com" \
+		--member="serviceAccount:global-service-account@$(GCP_PROJECT_NAME).iam.gserviceaccount.com" \
 		--role="roles/run.developer"
 	gcloud projects add-iam-policy-binding $(GCP_PROJECT_NAME) \
-		--member="serviceAccount:bucket-service-account@$(GCP_PROJECT_NAME).iam.gserviceaccount.com" \
+		--member="serviceAccount:global-service-account@$(GCP_PROJECT_NAME).iam.gserviceaccount.com" \
 		--role="roles/iam.serviceAccountUser"
 	gcloud projects add-iam-policy-binding $(GCP_PROJECT_NAME) \
-		--member="serviceAccount:bucket-service-account@$(GCP_PROJECT_NAME).iam.gserviceaccount.com" \
+		--member="serviceAccount:global-service-account@$(GCP_PROJECT_NAME).iam.gserviceaccount.com" \
 		--role="roles/iam.securityAdmin"
 	gcloud projects add-iam-policy-binding $(GCP_PROJECT_NAME) \
-		--member="serviceAccount:bucket-service-account@$(GCP_PROJECT_NAME).iam.gserviceaccount.com" \
+		--member="serviceAccount:global-service-account@$(GCP_PROJECT_NAME).iam.gserviceaccount.com" \
 		--role="roles/aiplatform.user"
 	gcloud iam service-accounts keys create service_account_key.json \
-		--iam-account=bucket-service-account@$(GCP_PROJECT_NAME).iam.gserviceaccount.com
-	echo "service_account_key.json" >> .gitignore
+		--iam-account=global-service-account@$(GCP_PROJECT_NAME).iam.gserviceaccount.com
+	echo service_account_key.json >> .gitignore
 
 serve_app:
 	uvicorn src.example_mlops.app:app
