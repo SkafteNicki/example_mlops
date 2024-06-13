@@ -48,8 +48,10 @@ jobs:
         echo '![](./train_label_distribution.png "Train label distribution")' >> data_statistics.txt
         echo '![](./test_label_distribution.png "Test label distribution")' >> data_statistics.txt
 
-    - name: Comment on PR
+    - name: Setup cml
       uses: iterative/setup-cml@v2
+
+    - name: Comment on PR
       env:
         REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
