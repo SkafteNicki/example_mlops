@@ -1,5 +1,6 @@
 """API for the MNIST model."""
 
+import sys
 import os
 from contextlib import asynccontextmanager
 from io import BytesIO
@@ -26,7 +27,7 @@ async def lifespan(app: FastAPI):
     logger.info(f"Loading model from {os.getenv('MODEL_CHECKPOINT')}...")
     if os.getenv("MODEL_CHECKPOINT") is None:
         logger.error("No model checkpoint found.")
-        exit(1)
+        sys.exit(1)
 
     mnist_model = load_from_checkpoint(os.getenv("MODEL_CHECKPOINT"), logdir="models")
     models["mnist"] = mnist_model
