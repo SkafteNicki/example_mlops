@@ -10,8 +10,6 @@ on:
       - '.dvc/**'
   workflow_dispatch: {}
 
-
-
 jobs:
   run_data_checker:
     runs-on: ubuntu-latest
@@ -43,10 +41,10 @@ jobs:
 
     - name: Check data statistics & generate report
       run: |
-        python src/example_mlops/data.py > data_statistics.txt
-        echo '![](./mnist_images.png "MNIST images")' >> data_statistics.txt
-        echo '![](./train_label_distribution.png "Train label distribution")' >> data_statistics.txt
-        echo '![](./test_label_distribution.png "Test label distribution")' >> data_statistics.txt
+        python src/example_mlops/data.py > data_statistics.md
+        echo '![](./mnist_images.png "MNIST images")' >> data_statistics.md
+        echo '![](./train_label_distribution.png "Train label distribution")' >> data_statistics.md
+        echo '![](./test_label_distribution.png "Test label distribution")' >> data_statistics.md
 
     - name: Setup cml
       uses: iterative/setup-cml@v2
@@ -55,4 +53,4 @@ jobs:
       env:
         REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        cml comment create report.md --watermark-title="Data Checker"
+        cml comment create data_statistics.md --watermark-title="Data Checker"
