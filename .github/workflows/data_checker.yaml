@@ -53,6 +53,7 @@ jobs:
         echo '![](./test_label_distribution.png "Test label distribution")' >> data_statistics.txt
 
     - name: Comment on PR
+      uses: iterative/setup-cml@v2
       env:
         REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
