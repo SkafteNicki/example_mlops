@@ -130,7 +130,6 @@ def link_model(artifact_path: str, aliases: list[str]) -> None:
     artifact.link(target_path=f"{os.getenv('WANDB_ENTITY')}/model-registry/{artifact_name}", aliases=aliases)
     artifact.save()
     logger.info("Model linked to registry.")
-    logger.info()
 
 
 @click.command()
