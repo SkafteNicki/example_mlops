@@ -3,13 +3,15 @@
 import os
 from dataclasses import dataclass
 
+import click
+import matplotlib.pyplot as plt
 import torch
 import torchvision.transforms.v2 as transforms
 from pytorch_lightning import LightningDataModule
 from torch import Tensor
 from torch.utils.data import DataLoader, Dataset
 
-from example_mlops.utils import HydraRichLogger
+from example_mlops.utils import HydraRichLogger, show_image_and_target
 
 logger = HydraRichLogger(level=os.getenv("LOG_LEVEL", "INFO"))
 
@@ -42,6 +44,8 @@ class MnistDataset(Dataset):
         img_transform: Image transformation to apply.
         target_transform: Target transformation to apply.
     """
+
+    name: str = "MNIST"
 
     def __init__(
         self,
@@ -158,3 +162,43 @@ class MnistDataModule(LightningDataModule):
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
         )
+
+
+@click.command()
+@click.option("--datadir", default="data", help="Path to the data directory")
+def dataset_statistics(datadir: str):
+    """Compute dataset statistics."""
+    train_dataset = MnistDataset(data_folder=datadir, train=True)
+    test_dataset = MnistDataset(data_folder=datadir, train=False)
+    print(f"Train dataset: {train_dataset.name}")
+    print(f"Number of images: {len(train_dataset)}")
+    print(f"Image shape: {train_dataset[0][0].shape}")
+    print("\n")
+    print(f"Test dataset: {test_dataset.name}")
+    print(f"Number of images: {len(test_dataset)}")
+    print(f"Image shape: {test_dataset[0][0].shape}")
+
+    show_image_and_target(train_dataset.images[:25], train_dataset.target[:25], show=False)
+    plt.savefig("mnist_images.png")
+    plt.close()
+
+    train_label_distribution = torch.bincount(train_dataset.target)
+    test_label_distribution = torch.bincount(test_dataset.target)
+
+    plt.bar(torch.arange(10), train_label_distribution)
+    plt.title("Train label distribution")
+    plt.xlabel("Label")
+    plt.ylabel("Count")
+    plt.savefig("train_label_distribution.png")
+    plt.close()
+
+    plt.bar(torch.arange(10), test_label_distribution)
+    plt.title("Test label distribution")
+    plt.xlabel("Label")
+    plt.ylabel("Count")
+    plt.savefig("test_label_distribution.png")
+    plt.close()
+
+
+if __name__ == "__main__":
+    dataset_statistics()
