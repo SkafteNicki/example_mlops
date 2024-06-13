@@ -79,6 +79,13 @@ outs:
       remote_storage:
         etag: 08ebd397b6b18286031001
         version_id: '1715320125778411'
+  - relpath: train_images_9.pt
+    md5: e5080a4190d577ceaf0b7516241e0c4f
+    size: 15680768
+    cloud:
+      remote_storage:
+        etag: 089ea4b5b5b18286031001
+        version_id: '1715320124166686'
   - relpath: train_target_0.pt
     md5: e4a6683c59059f14cef44dfec30cdc21
     size: 480768
@@ -142,3 +149,10 @@ outs:
       remote_storage:
         etag: 08d8c1d9b3b18286031001
         version_id: '1715320120565976'
+  - relpath: train_target_9.pt
+    md5: b22a0f4155dae95e1b4b99b7c99d49af
+    size: 480768
+    cloud:
+      remote_storage:
+        etag: 08d0d8cab3b18286031001
+        version_id: '1715320120323152'
