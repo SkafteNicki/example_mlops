@@ -182,7 +182,7 @@ jobs:
           MODEL_CHECKPOINT: ${{ env.MODEL_CHECKPOINT }}
         run: |
           gcloud builds submit \
-            --config cloudbuild_deploy_model.yaml \
+            --config gcp/cloudbuild_deploy_model.yaml \
             --substitutions=_MODEL_NAME=$MODEL_NAME,_MODEL_CHECKPOINT=$MODEL_CHECKPOINT
 
   loadtest_deployed_model:

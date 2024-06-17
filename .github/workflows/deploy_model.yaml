@@ -74,7 +74,7 @@ jobs:
       - name: Deploy model
         run: |
           gcloud builds submit \
-            --config cloudbuild_deploy_model.yaml \
+            --config gcp/cloudbuild_deploy_model.yaml \
             --substitutions=_MODEL_NAME="production-model",_MODEL_CHECKPOINT=$MODEL_NAME
 
   loadtest_production_model:
