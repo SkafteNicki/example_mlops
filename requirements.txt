@@ -16,3 +16,4 @@ onnxruntime>=1.17.3,<1.18.0
 onnx>=1.16.0
 streamlit>=1.35.0
 streamlit-drawable-canvas>=0.9.3
+invoke>=2.2.0
