@@ -45,12 +45,22 @@ Make sure you have `Make` installed on your system
     dvc pull
     ```
 
-    the data is stored in a GCP bucket and managed by DVC (Data Version Control). You need to have DVC installed and configured with your GCP credentials.
+    the data is stored in a GCP bucket and managed by DVC (Data Version Control). You need to have DVC installed and
+    configured with your GCP credentials.
 
-4. Installing the requirements and the project also install 3 project scripts as easy to use commands:
+5. Installing the requirements and the project also install 3 project scripts as easy to use commands:
     - `train`: to train a model
     - `evaluate`: to evaluate a model
     - `model_management`: to manage models
 
     Try running `train` in the terminal and see the model training process. Afterwards, you can run
     `evaluate` with path to the model you just trained to see the evaluation results.
+
+6. Standard configs for training and evaluation is stored in the `configs/` folder. In here you can also find a config
+    for doing a hyperparameter search using Weights & Biases. To run the hyperparameter search, two make commands are
+    available:
+
+    ```bash
+    make start_sweep
+    make start_agent
+    ```

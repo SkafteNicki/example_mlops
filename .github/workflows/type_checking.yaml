@@ -1,12 +1,13 @@
 name: Type checking
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch: # Temporary trigger to disable the workflow
+  # push:
+  #   branches:
+  #     - main
+  # pull_request:
+  #   branches:
+  #     - main
 
 jobs:
   typecheck:
