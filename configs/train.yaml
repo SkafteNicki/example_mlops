@@ -9,6 +9,8 @@ upload_model: True
 model:
   _target_: "example_mlops.model.MnistClassifier"
   backbone: "resnet18"
+  learning_rate: 0.001
+  optimizer: "adam"
 
 datamodule:
   _target_: "example_mlops.data.MnistDataModule"
