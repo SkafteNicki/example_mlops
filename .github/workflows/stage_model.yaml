@@ -89,7 +89,7 @@ jobs:
         run: model_management link-latest-model mnist_model -a pre-production
 
       - name: Upload artifacts for future jobs
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: models
           path: models/
