@@ -13,6 +13,6 @@ COPY requirements.txt /app/requirements.txt
 COPY pyproject.toml /app/pyproject.toml
 COPY src/ /app/src
 
-RUN --mount=type=cache,target=/root/.cache/pip pip install .
+RUN pip install .
 
 # no entrypoint, define these at runtime

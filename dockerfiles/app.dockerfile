@@ -12,7 +12,7 @@ COPY requirements.txt /app/requirements.txt
 COPY pyproject.toml /app/pyproject.toml
 COPY src/ /app/src
 
-RUN --mount=type=cache,target=/root/.cache/pip pip install .
+RUN pip install .
 
 EXPOSE $PORT
 CMD exec uvicorn src.example_mlops.app:app --host 0.0.0.0 --port $PORT
