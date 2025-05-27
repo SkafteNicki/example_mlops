@@ -64,3 +64,24 @@ Make sure you have `Make` installed on your system
     make start_sweep
     make start_agent
     ```
+
+7. After having trained a model, you can deploy it locally with the following command:
+
+    ```bash
+    MODEL_CHECKPOINT="" make serve_app
+    ```
+
+    where `MODEL_CHECKPOINT` is the path to the model checkpoint you want to deploy.
+
+8. Everything can also be run in a Docker container. To build the two Docker images in the `dockerfiles/` folder, run
+
+    ```bash
+    make container_build
+    ```
+
+    and then respectively run the training and serving containers with
+
+    ```bash
+    make container_run
+    make container_serve
+    ```
