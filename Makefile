@@ -129,7 +129,7 @@ deploy_model:
 		--substitutions=_MODEL_NAME=testing-model,_MODEL_CHECKPOINT=best_mlops_team/example_mlops_project/mnist_model:v19
 
 frontend:
-	streamlit run src\example_mlops\frontend.py
+	streamlit run src/example_mlops/frontend.py
 
 #################################################################################
 # Documentation RULES                                                           #
