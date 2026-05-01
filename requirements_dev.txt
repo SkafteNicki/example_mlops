@@ -1,7 +1,7 @@
 ipython>=8.24.0
 ipdb>=0.13.13
 ruff>=0.4.2
-pre-commit>=3.7.0
+pre-commit>=4.6.0
 coverage>=7.5.0
 pytest>=8.2.0
 mypy>=1.10.0
